@@ -729,7 +729,8 @@ def confirm_registration(registration_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-create_tables()
+with app.app_context():
+    create_tables()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
