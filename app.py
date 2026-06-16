@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
-import mysql.connector
-from mysql.connector import Error
+import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 import pdfkit
 import os
@@ -56,10 +56,10 @@ def get_itcg_logo_b64():
 
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
+        conn = psycopg2.connect(**DB_CONFIG)
         return conn
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
+    except Exception as e:
+        print(f"Error connecting to PostgreSQL: {e}")
         return None
 
 
@@ -70,20 +70,20 @@ def create_tables():
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS otp_verification (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 email VARCHAR(255) NOT NULL,
                 otp VARCHAR(6) NOT NULL,
                 purpose VARCHAR(50) DEFAULT 'form_submit',
-                expires_at DATETIME NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_email (email),
-                INDEX idx_expires (expires_at)
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_email ON otp_verification (email)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_expires ON otp_verification (expires_at)")
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS registrations (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 registration_number VARCHAR(50),
                 domain_type VARCHAR(50),
                 industry_reg_type VARCHAR(50),
@@ -143,6 +143,7 @@ def create_tables():
                 declarant_designation VARCHAR(255),
                 declarant_email VARCHAR(255),
                 declarant_date DATE,
+                declarant_signature VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -165,13 +166,14 @@ def generate_pdf_for_registration(registration_id):
         conn = get_db_connection()
         if not conn:
             return None
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM registrations WHERE id = %s", (registration_id,))
         data = cursor.fetchone()
         cursor.close()
         conn.close()
         if not data:
             return None
+        data = dict(data)
         if data.get('declarant_date') and hasattr(data['declarant_date'], 'strftime'):
             data['declarant_date'] = data['declarant_date'].strftime('%d-%m-%Y')
         html_content = render_template('pdf_template.html', data=data, itcg_logo=get_itcg_logo_b64())
@@ -241,13 +243,6 @@ def send_otp_email(email, otp, registration_id=None):
 
 
 def send_confirmation_email(declarant_email, registration_id):
-    """
-    Send final confirmation email:
-      - TO:  declarant_email  (visible to declarant)
-      - BCC: ACCOUNTANT_EMAIL (hidden; accountant gets the same documents silently)
-
-    If declarant_email happens to equal ACCOUNTANT_EMAIL, only one copy is sent (no duplicate).
-    """
     try:
         result = generate_pdf_for_registration(registration_id)
         if not result:
@@ -256,15 +251,13 @@ def send_confirmation_email(declarant_email, registration_id):
         reg_number  = reg_data.get('registration_number', registration_id)
         vendor_name = reg_data.get('vendor_name', 'Vendor')
 
-        # ── Build message ──────────────────────────────────────────────────
         msg = Message(
             subject=f"ITCG - Registration Confirmed: {reg_number}",
-            recipients=[declarant_email]          # TO  → declarant sees their own address
+            recipients=[declarant_email]
         )
 
-        # BCC the accountant only when the addresses differ
         if declarant_email.lower() != ACCOUNTANT_EMAIL.lower():
-            msg.bcc = [ACCOUNTANT_EMAIL]           # BCC → hidden from declarant
+            msg.bcc = [ACCOUNTANT_EMAIL]
 
         msg.html = f"""
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;
@@ -291,14 +284,12 @@ def send_confirmation_email(declarant_email, registration_id):
         </div>
         """
 
-        # ── Attach main registration PDF ───────────────────────────────────
         msg.attach(
             filename=f"ITCG_Registration_{reg_number}_Confirmed.pdf",
             content_type="application/pdf",
             data=pdf_bytes
         )
 
-        # ── Attach uploaded documents (GST, PAN, MSME) ────────────────────
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         doc_folders = {
             'GST':  reg_data.get('gst', ''),
@@ -321,7 +312,7 @@ def send_confirmation_email(declarant_email, registration_id):
                             content_type=content_type,
                             data=df.read()
                         )
-                    break  # attach only first match per doc type
+                    break
 
         mail.send(msg)
         return True
@@ -351,7 +342,7 @@ def verify_otp(email, otp):
     conn = get_db_connection()
     if not conn:
         return False
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute(
         "SELECT * FROM otp_verification WHERE email=%s AND otp=%s AND purpose='form_submit' "
         "AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
@@ -417,7 +408,7 @@ def submit_form():
             %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s
-        )
+        ) RETURNING id
         """
 
         values = (
@@ -445,8 +436,8 @@ def submit_form():
         )
 
         cursor.execute(query, values)
+        registration_id = cursor.fetchone()[0]  # PostgreSQL RETURNING id
         conn.commit()
-        registration_id = cursor.lastrowid
         cursor.close()
         conn.close()
 
@@ -553,7 +544,7 @@ def upload_documents():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# ── Registration Options (Preview / Edit / Submit & Confirm) ──────────────────
+# ── Registration Options ──────────────────────────────────────────────────────
 
 @app.route('/registration-options/<int:registration_id>')
 def registration_options(registration_id):
@@ -563,9 +554,9 @@ def registration_options(registration_id):
         conn = get_db_connection()
         if not conn:
             return redirect(url_for('home'))
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM registrations WHERE id = %s", (registration_id,))
-        data = cursor.fetchone()
+        data = dict(cursor.fetchone())
         cursor.close()
         conn.close()
         if not data:
@@ -585,9 +576,9 @@ def preview_registration(registration_id):
         conn = get_db_connection()
         if not conn:
             return redirect(url_for('home'))
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM registrations WHERE id = %s", (registration_id,))
-        data = cursor.fetchone()
+        data = dict(cursor.fetchone())
         cursor.close()
         conn.close()
         if not data:
@@ -609,9 +600,9 @@ def edit_form(registration_id):
         conn = get_db_connection()
         if not conn:
             return redirect(url_for('home'))
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM registrations WHERE id = %s", (registration_id,))
-        data = cursor.fetchone()
+        data = dict(cursor.fetchone())
         cursor.close()
         conn.close()
         if not data:
@@ -688,9 +679,9 @@ def generate_pdf(registration_id):
         conn = get_db_connection()
         if not conn:
             return jsonify({'error': 'Database connection failed'}), 500
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM registrations WHERE id = %s", (registration_id,))
-        data = cursor.fetchone()
+        data = dict(cursor.fetchone())
         cursor.close()
         conn.close()
         if not data:
@@ -714,11 +705,10 @@ def confirm_registration(registration_id):
     if session.get('verified_registration_id') != registration_id:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     try:
-        # Fetch declarant email from DB
         conn = get_db_connection()
         declarant_email = None
         if conn:
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cursor.execute("SELECT declarant_email FROM registrations WHERE id = %s", (registration_id,))
             row = cursor.fetchone()
             cursor.close()
@@ -729,7 +719,6 @@ def confirm_registration(registration_id):
         if not declarant_email:
             return jsonify({'success': False, 'error': 'Declarant email not found'}), 400
 
-        # send_confirmation_email sends TO declarant, BCC accountant
         if send_confirmation_email(declarant_email, registration_id):
             return jsonify({
                 'success': True,
