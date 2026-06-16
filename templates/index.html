@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITCG Vendor-Customer Registration Form V3.1</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .reg-number-display {
+            margin: 15px 0;
+            padding: 10px 20px;
+            background-color: #e8f0fe;
+            border: 2px solid #1a4b7a;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #1a4b7a;
+            display: inline-block;
+            font-size: 16px;
+        }
+        
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .welcome-message {
+            color: #1a4b7a;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .logout-btn {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .logout-btn i {
+            margin-right: 5px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .step.completed {
+            background: #00C851;
+            color: white;
+        }
+
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- ITCG Branding Bar -->
+        <div class="itcg-branding-bar" style="display:flex;align-items:center;gap:12px;padding:10px 14px;
+             background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:14px;flex-wrap:wrap;">
+            <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
+                 style="height:42px;width:auto;object-fit:contain;display:block;">
+            <div style="font-size:12px;color:#475569;line-height:1.4;">
+                <strong style="color:#1a4b7a;">Delivering Technology</strong> — ITCG Solutions Private Limited<br>
+                Vadodara | Ahmedabad | Surat | Rajkot | Indore
+            </div>
+        </div>
+
+        <div class="form-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <h1 style="margin:0;">ITCG Vendor-Customer Registration</h1>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="form-version">Form V3.1 (Mar 2026)</div>
+                <button type="button" onclick="openHelpPDF()" title="View Instructions Guide"
+                    style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;
+                           background:linear-gradient(135deg,#1a4b7a,#2563a8);color:#fff;
+                           border:none;border-radius:6px;font-size:13px;font-weight:600;
+                           cursor:pointer;box-shadow:0 2px 8px rgba(26,75,122,0.3);transition:all 0.2s;"
+                    onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(26,75,122,0.4)'"
+                    onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(26,75,122,0.3)'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Help &amp; Instructions
+                </button>
+            </div>
+        </div>
+
+        <!-- Help Modal — Enhanced with Tabs (Step-by-Step Guide + Full PDF) -->
+        <div id="helpModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+             background:rgba(0,0,0,0.65);z-index:10000;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:14px;width:92%;max-width:860px;height:90vh;
+                        display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.4);overflow:hidden;">
+
+                <!-- Modal Header -->
+                <div style="background:linear-gradient(135deg,#1a2e44,#1e3a52);padding:16px 24px;
+                            display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:8px;
+                                    display:flex;align-items:center;justify-content:center;font-size:20px;">📋</div>
+                        <div>
+                            <div style="color:#fff;font-size:16px;font-weight:700;font-family:sans-serif;">Registration Instructions Guide</div>
+                            <div style="color:rgba(255,255,255,0.55);font-size:12px;margin-top:1px;">ITCG Vendor-Customer Registration Portal · Form V3.1</div>
+                        </div>
+                    </div>
+                    <button onclick="closeHelpModal()" style="background:rgba(255,255,255,0.1);border:none;color:#fff;
+                            width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;
+                            display:flex;align-items:center;justify-content:center;transition:background 0.2s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.1)'">&times;</button>
+                </div>
+
+                <!-- Tabs -->
+                <div style="display:flex;background:#f1f5f9;border-bottom:2px solid #e2e8f0;flex-shrink:0;">
+                    <button id="tabBtn-guide" onclick="switchHelpTab('guide')"
+                        style="flex:1;padding:12px 0;border:none;background:transparent;font-size:13px;font-weight:700;
+                               color:#1a4b7a;cursor:pointer;border-bottom:3px solid #1a4b7a;transition:all 0.2s;font-family:sans-serif;">
+                        📝 Step-by-Step Guide
+                    </button>
+                    <button id="tabBtn-fields" onclick="switchHelpTab('fields')"
+                        style="flex:1;padding:12px 0;border:none;background:transparent;font-size:13px;font-weight:700;
+                               color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;font-family:sans-serif;">
+                        🔍 Field Reference
+                    </button>
+                    <button id="tabBtn-pdf" onclick="switchHelpTab('pdf')"
+                        style="flex:1;padding:12px 0;border:none;background:transparent;font-size:13px;font-weight:700;
+                               color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;font-family:sans-serif;">
+                        📄 Full Instructions PDF
+                    </button>
+                </div>
+
+                <!-- TAB: Step-by-Step Guide -->
+                <div id="helpTab-guide" style="overflow-y:auto;padding:24px 28px;background:#f8fafc;flex:1;">
+
+                    <!-- Quick legend -->
+                    <div style="display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;">
+                        <span style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 12px;font-size:12px;color:#dc2626;font-weight:600;">* Required field</span>
+                        <span style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 12px;font-size:12px;color:#92400e;">NA → Write "NA" if not applicable</span>
+                        <span style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:5px 12px;font-size:12px;color:#1d4ed8;">Uploads: PDF / JPG / PNG</span>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">1</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Select Registration Type</div>
+                                <div style="font-size:12px;color:#64748b;">Choose Vendor or Customer from the dropdown at the top</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>Select <strong>Vendor</strong> if you are supplying goods/services — Banking Information is <span style="color:#dc2626;font-weight:600;">mandatory</span></li>
+                                <li>Select <strong>Customer</strong> if you are purchasing — banking details are not required</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">2</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Section 1 — Legal Information</div>
+                                <div style="font-size:12px;color:#64748b;">Business identity &amp; tax registration numbers</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li><strong>Name of Vendor/Customer*</strong> — Registered company or business name</li>
+                                <li><strong>Industry Type*</strong> — Select from dropdown (e.g. Manufacturing / IT Services / Retail)</li>
+                                <li><strong>Contact No.*</strong> — 10-digit mobile or landline, no spaces</li>
+                                <li><strong>CIN No.*</strong> — 21-character Corporate ID. Write <em>NA</em> if sole proprietor/individual</li>
+                                <li><strong>TAN No.*</strong> — Tax Deduction Account No. Write <em>NA</em> if not applicable</li>
+                                <li><strong>GST*</strong> — 15-character GSTIN (e.g. 24ABCDE1234F1Z5)</li>
+                                <li><strong>PAN*</strong> — 10-character PAN (company PAN for companies, personal for individuals)</li>
+                                <li><strong>MSME No.*</strong> — Udyam Registration Number. Write <em>NA</em> if not registered</li>
+                            </ul>
+                            <div style="margin-top:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;font-size:12px;color:#92400e;">
+                                💡 For each document (GST, PAN, MSME) — select <strong>Yes</strong> to upload the certificate, or <strong>No</strong> to skip. Accepted formats: PDF, JPG, PNG.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">3</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Section 2 — Address Information</div>
+                                <div style="font-size:12px;color:#64748b;">Billing &amp; Shipping addresses</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li><strong>Billing Address*</strong> — Building/office + street, area, city, state code, 6-digit PIN</li>
+                                <li><strong>Shipping Address</strong> — Use the <em>"Same as Billing"</em> checkbox if delivery address is same as billing, or fill manually if different</li>
+                                <li>State/UT Code — Use state name or numeric code (e.g. Gujarat / 24)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">4</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Section 3 — Banking Information <span style="font-size:11px;color:#dc2626;">(Vendors only)</span></div>
+                                <div style="font-size:12px;color:#64748b;">Bank account details for payment processing</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li><strong>Name of Bank* / Branch Name*</strong></li>
+                                <li><strong>Bank Account No.*</strong> — Full account number, no spaces</li>
+                                <li><strong>Bank Account Type*</strong> — Current Account (businesses) or Savings (individuals)</li>
+                                <li><strong>IFSC Code*</strong> — Find on cheque book or passbook (e.g. HDFC0001234)</li>
+                                <li><strong>MICR Code</strong> — Optional 9-digit code from cheque</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">5</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Section 4 — Contact Details</div>
+                                <div style="font-size:12px;color:#64748b;">Department-wise contacts — fill all four departments</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>Fill contact details for <strong>IT, Purchase, Accounts</strong> and <strong>Finance</strong> departments</li>
+                                <li>Each department needs: Contact Name*, Designation, Email Address*, Mobile No.*</li>
+                                <li>If the same person handles multiple departments, repeat their details in each section</li>
+                                <li>Use official email IDs — avoid personal emails. WhatsApp-enabled mobile preferred</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">6</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Section 5 — Declaration &amp; Submit</div>
+                                <div style="font-size:12px;color:#64748b;">Certify the form and click Submit &amp; View</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>Enter <strong>Name*, Designation*, Date*, Email ID*</strong> of the person certifying the form</li>
+                                <li>The OTP for email verification will be sent to this email address</li>
+                                <li>Double-check all numbers (GST, PAN, CIN, bank account, mobile) before submitting</li>
+                                <li>Click <strong style="color:#1a4b7a;">"Submit &amp; View"</strong> — a 6-digit OTP will be sent to the declarant email</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">7</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">OTP Email Verification</div>
+                                <div style="font-size:12px;color:#64748b;">Verify your submission via the 6-digit OTP</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>A 6-digit OTP and a PDF copy of your form are sent to the Declarant Email ID</li>
+                                <li>Review the PDF, then enter the OTP in the popup and click <strong>"Verify OTP"</strong></li>
+                                <li>OTP is valid for <strong>10 minutes</strong> — click <strong>"Resend"</strong> if needed</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 8 -->
+                    <div style="margin-bottom:22px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#eef2ff,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#1a4b7a,#2563a8);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">8</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#1a2e44;font-family:sans-serif;">Preview &amp; Edit</div>
+                                <div style="font-size:12px;color:#64748b;">Review all submitted details on the preview page</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>Review all details, uploaded documents (GST, PAN, MSME), and contact information</li>
+                                <li>Click <strong>"Edit Form"</strong> to go back and make corrections</li>
+                                <li>Click <strong>"Download PDF"</strong> to save a copy</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Step 9 — Final -->
+                    <div style="margin-bottom:8px;background:#fff;border:1px solid #bbf7d0;border-radius:12px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;background:linear-gradient(90deg,#f0fdf4,#f8fafc);">
+                            <div style="width:34px;height:34px;background:linear-gradient(135deg,#059669,#047857);
+                                        border-radius:50%;display:flex;align-items:center;justify-content:center;
+                                        color:#fff;font-weight:700;font-size:14px;flex-shrink:0;">9</div>
+                            <div>
+                                <div style="font-size:14px;font-weight:700;color:#065f46;font-family:sans-serif;">Confirm &amp; Send to Email — Registration Complete</div>
+                                <div style="font-size:12px;color:#64748b;">Final confirmation step</div>
+                            </div>
+                        </div>
+                        <div style="padding:14px 18px 14px 66px;">
+                            <ul style="margin:0;padding-left:18px;font-size:13px;color:#374151;line-height:2.1;">
+                                <li>Tick the <strong>Confirmation Checkbox</strong> to acknowledge all details are correct</li>
+                                <li>Click <strong style="color:#059669;">"Confirm &amp; Send to Email"</strong></li>
+                                <li>A registration PDF and all uploaded documents are emailed to all registered email addresses</li>
+                            </ul>
+                            <div style="margin-top:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:9px 13px;font-size:12px;color:#166534;">
+                                ✅ <strong>Done!</strong> Keep copies of all uploaded certificates (GST, PAN, MSME) — you may be asked to re-submit if files are unreadable.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB: Field Reference -->
+                <div id="helpTab-fields" style="display:none;overflow-y:auto;padding:24px 28px;background:#f8fafc;flex:1;">
+
+                    <p style="font-size:13px;color:#64748b;margin:0 0 18px 0;">Quick reference for all fields and their required formats.</p>
+
+                    <!-- Legal Information -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:13px;font-weight:700;color:#1a4b7a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;">
+                            📋 Section 1 — Legal Information
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                            <thead><tr style="background:#1a2e44;color:#fff;">
+                                <th style="padding:9px 14px;text-align:left;width:38%;">Field</th>
+                                <th style="padding:9px 14px;text-align:left;">Format / Instruction</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Name of Vendor/Customer *</td><td style="padding:8px 14px;color:#64748b;">Registered company or business name</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Website</td><td style="padding:8px 14px;color:#64748b;">Official URL. Leave blank if unavailable</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Industry Type *</td><td style="padding:8px 14px;color:#64748b;">Select from dropdown</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Contact No. *</td><td style="padding:8px 14px;color:#64748b;">10 digits, no spaces</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">CIN No. *</td><td style="padding:8px 14px;color:#64748b;">21 characters (Pvt Ltd / Ltd only). Write NA otherwise</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">TAN No. *</td><td style="padding:8px 14px;color:#64748b;">Tax Deduction Account Number. Write NA if not applicable</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">GST *</td><td style="padding:8px 14px;color:#64748b;"><strong>15 characters</strong> — e.g. 24ABCDE1234F1Z5</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">PAN *</td><td style="padding:8px 14px;color:#64748b;"><strong>10 characters</strong> — e.g. ABCDE1234F</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">MSME No. *</td><td style="padding:8px 14px;color:#64748b;">Udyam Registration No. — e.g. UDYAM-GJ-00-0012345. Write NA if not registered</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Address -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:13px;font-weight:700;color:#1a4b7a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;">
+                            🏢 Section 2 — Address
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                            <thead><tr style="background:#1a2e44;color:#fff;">
+                                <th style="padding:9px 14px;text-align:left;width:38%;">Field</th>
+                                <th style="padding:9px 14px;text-align:left;">Instruction</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Address Line 1 *</td><td style="padding:8px 14px;color:#64748b;">Building name / office + street</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Address Line 2 / 3</td><td style="padding:8px 14px;color:#64748b;">Area / locality / landmark (optional)</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">City/Town/Village *</td><td style="padding:8px 14px;color:#64748b;">City name</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">State / U.T Code *</td><td style="padding:8px 14px;color:#64748b;">State name or code — e.g. Gujarat / 24</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Pin/Post Code *</td><td style="padding:8px 14px;color:#64748b;"><strong>6-digit PIN code</strong></td></tr>
+                                <tr style="background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Shipping Address</td><td style="padding:8px 14px;color:#64748b;">Fill only if different from billing. Otherwise write <em>"Same as Billing Address"</em></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Banking -->
+                    <div style="margin-bottom:20px;">
+                        <div style="font-size:13px;font-weight:700;color:#1a4b7a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;">
+                            🏦 Section 3 — Banking Information <span style="color:#dc2626;">(Vendors only)</span>
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                            <thead><tr style="background:#1a2e44;color:#fff;">
+                                <th style="padding:9px 14px;text-align:left;width:38%;">Field</th>
+                                <th style="padding:9px 14px;text-align:left;">Instruction</th>
+                            </tr></thead>
+                            <tbody>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Name of Bank *</td><td style="padding:8px 14px;color:#64748b;">e.g. HDFC Bank / SBI / ICICI Bank</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Branch Name *</td><td style="padding:8px 14px;color:#64748b;">Branch location name</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Bank Account No. *</td><td style="padding:8px 14px;color:#64748b;">Full account number, no spaces</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">Bank Account Type *</td><td style="padding:8px 14px;color:#64748b;">Current (businesses) or Savings (individuals)</td></tr>
+                                <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:8px 14px;font-weight:600;color:#374151;">IFSC Code *</td><td style="padding:8px 14px;color:#64748b;">Find on cheque book or passbook — e.g. HDFC0001234</td></tr>
+                                <tr style="background:#f8fafc;"><td style="padding:8px 14px;font-weight:600;color:#374151;">MICR Code</td><td style="padding:8px 14px;color:#64748b;">9-digit code on cheque (optional)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div style="margin-bottom:8px;">
+                        <div style="font-size:13px;font-weight:700;color:#1a4b7a;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e2e8f0;">
+                            📞 Section 4 — Contact Details (All 4 Departments)
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                                <div style="font-weight:700;color:#1a2e44;font-size:13px;margin-bottom:8px;">💻 IT Department</div>
+                                <div style="font-size:12px;color:#64748b;">Computers, software &amp; system coordination</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                                <div style="font-weight:700;color:#1a2e44;font-size:13px;margin-bottom:8px;">🛒 Purchase Department</div>
+                                <div style="font-size:12px;color:#64748b;">Purchase approvals &amp; billing</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                                <div style="font-weight:700;color:#1a2e44;font-size:13px;margin-bottom:8px;">📒 Accounts Department</div>
+                                <div style="font-size:12px;color:#64748b;">Billing, payments, invoices &amp; follow-up</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+                                <div style="font-weight:700;color:#1a2e44;font-size:13px;margin-bottom:8px;">💰 Finance Department</div>
+                                <div style="font-size:12px;color:#64748b;">Financial approvals &amp; payment authorisation</div>
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:9px 13px;font-size:12px;color:#1d4ed8;">
+                            Each department requires: <strong>Contact Name*, Email Address*, Mobile No.*</strong> — and optionally Designation &amp; Landline/Fax.
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB: Full PDF -->
+                <div id="helpTab-pdf" style="display:none;flex:1;flex-direction:column;background:#f1f5f9;">
+                    <div style="padding:12px 20px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                        <span style="font-size:13px;color:#64748b;">📄 Registration_Instructions_Guide.pdf &nbsp;·&nbsp; 9 pages</span>
+                        <a href="/static/Registration_Instructions_Guide.pdf" download
+                           style="background:#1a4b7a;color:#fff;text-decoration:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;">
+                            ⬇ Download PDF
+                        </a>
+                    </div>
+                    <iframe id="helpPdfFrame" src="" style="flex:1;width:100%;border:none;min-height:0;display:block;"></iframe>
+                </div>
+
+                <!-- Modal Footer -->
+                <div style="padding:12px 24px;background:#f1f5f9;border-top:1px solid #e2e8f0;
+                            display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <span style="font-size:12px;color:#94a3b8;">Form V3.1 (Mar 2026) · ITCG Vendor-Customer Registration</span>
+                    <button onclick="closeHelpModal()"
+                        style="padding:8px 22px;background:#1a4b7a;color:#fff;border:none;
+                               border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OTP Verification Modal -->
+        <div id="otpModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+             background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:12px;padding:36px 32px;max-width:420px;width:90%;
+                        box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;">
+                <div style="font-size:48px;margin-bottom:12px;">📧</div>
+                <h2 style="color:#1a4b7a;margin:0 0 8px 0;font-size:22px;">Verify Your Email</h2>
+                <p style="color:#555;font-size:14px;margin:0 0 20px 0;">
+                    An OTP has been sent to your declarant email address.<br>
+                    Please enter the 6-digit OTP to complete submission.
+                </p>
+                <div id="otpEmailDisplay" style="font-weight:bold;color:#1a4b7a;margin-bottom:20px;font-size:14px;"></div>
+                <input id="otpInput" type="text" maxlength="6" placeholder="Enter 6-digit OTP"
+                       style="width:100%;padding:14px;font-size:22px;text-align:center;letter-spacing:8px;
+                              border:2px solid #ccc;border-radius:8px;box-sizing:border-box;margin-bottom:16px;
+                              font-weight:bold;outline:none;" oninput="this.value=this.value.replace(/\D/g,'')">
+                <div id="otpError" style="color:#dc3545;font-size:13px;margin-bottom:12px;display:none;"></div>
+                <button onclick="submitOtp()" id="otpVerifyBtn"
+                        style="width:100%;padding:13px;background:#1a4b7a;color:#fff;border:none;
+                               border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:12px;">
+                    Verify OTP
+                </button>
+                <div style="font-size:13px;color:#888;">
+                    Didn't receive OTP?
+                    <a href="#" onclick="resendOtp(event)"
+                       style="color:#1a4b7a;font-weight:bold;text-decoration:none;">Resend</a>
+                </div>
+                <div id="resendMsg" style="color:#28a745;font-size:13px;margin-top:8px;display:none;"></div>
+            </div>
+        </div>
+
+        <div class="reg-number-display" id="uniqueRegDisplay">
+            Registration Number: Not generated yet
+        </div>
+
+        <form id="registrationForm">
+            <!-- Domain Selection -->
+            <div class="domain-section" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+                <div>
+                    <label for="domainType">Register as:</label>
+                    <select id="domainType" name="domainType" required onchange="toggleBankValidation()">
+                        <option value="">Select Type</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Vendor">Vendor</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="industryRegType">Industry Registration Type: *</label>
+                    <select id="industryRegType" name="industryRegType" required onchange="toggleIndustryRegType()">
+                        <option value="">Select Type</option>
+                        <option value="Private Limited Company">Private Limited Company</option>
+                        <option value="Public Limited Company">Public Limited Company</option>
+                        <option value="LLP">LLP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 1. Legal Information -->
+            <div class="section">
+                <div class="section-title">1. Legal Information</div>
+                <table class="legal-table">
+                    <tr>
+                        <td>Name of Vendor/Customer *</td>
+                        <td>Website </td>
+                        <td>Industry Type *</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="vendorName" name="vendorName" required></td>
+                        <td><input type="url" id="website" name="website"></td>
+                        <td>
+                            <select id="industry" name="industry" onchange="toggleOtherIndustry(this)">
+                                <option value="">Select</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Construction">Construction</option>
+                                <option value="Logistics">Logistics</option>
+                                <option value="Education">Education</option>
+                                <option value="Energy">Energy</option>
+                                <option value="Consumer">Consumer</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <input type="text" id="industryOther" name="industryOther"
+                                placeholder="Please specify your industry type..."
+                                style="display:none;margin-top:6px;width:100%;padding:7px 10px;
+                                       border:1px solid #ccc;border-radius:4px;font-size:13px;
+                                       box-sizing:border-box;border-left:3px solid #1a4b7a;">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Contact No.*</td>
+                        <td id="cinLlpinLabel">CIN No.*</td>
+                        <td>TAN No.*</td>
+                    </tr>
+                    <tr>
+                        <td><input type="tel" id="contactNo" name="contactNo" required></td>
+                        <td>
+                            <input type="text" id="cin" name="cin" maxlength="21" required
+                                placeholder="21-character CIN">
+                            <input type="text" id="llpin" name="llpin" maxlength="7" required
+                                placeholder="7-character LLPIN" style="display:none;margin-top:6px;">
+                            <div id="cinLlpinError" style="display:none;color:red;font-size:12px;margin-top:4px;"></div>
+                        </td>
+                        <td><input type="text" id="tan" name="tan" required></td>
+                    </tr>
+                    <tr>
+                        <td id="gstLabel">GST*</td>
+                        <td colspan="2">GST Certificate Attached?</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="gst" name="gst" maxlength="15" required placeholder="15-character GSTIN"></td>
+                        <td colspan="2">
+                            <label><input type="radio" name="gstCert" value="Yes" checked onchange="toggleFileUpload('gstFileRow', this)"> Yes</label>
+                            <label><input type="radio" name="gstCert" value="No" onchange="toggleFileUpload('gstFileRow', this)"> No</label>
+                        </td>
+                    </tr>
+                    <tr id="gstFileRow" class="file-upload-row">
+                        <td class="field-label">Add GST Certificate <span style="color:rgb(21, 20, 20);font-weight:bold;" title="Mandatory">*</span></td>
+                        <td colspan="2">
+                            <div class="file-upload-area" id="gstDropZone">
+                                <input type="file" id="gstFile" name="gstFile" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;">
+                                <div class="file-upload-content" onclick="document.getElementById('gstFile').click()">
+                                    <span class="file-upload-icon">📎</span>
+                                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                                    <span class="file-upload-hint">PDF, JPG, PNG accepted</span>
+                                </div>
+                                <div class="file-list" id="gstFileList"></div>
+                            </div>
+                            <div id="gstUploadSuccess" style="display:none; color:green; font-weight:bold; margin-top:5px;">✅ File uploaded successfully!</div>
+                            <div id="gstUploadWarning" style="display:none; color:red; font-weight:bold; margin-top:5px;">⚠️ Please upload GST Certificate file.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PAN*</td>
+                        <td colspan="2">PAN Card Attached?</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="pan" name="pan" maxlength="10" required placeholder="10-character PAN"></td>
+                        <td colspan="2">
+                            <label><input type="radio" name="panCert" value="Yes" checked onchange="toggleFileUpload('panFileRow', this)"> Yes</label>
+                            <label><input type="radio" name="panCert" value="No" onchange="toggleFileUpload('panFileRow', this)"> No</label>
+                        </td>
+                    </tr>
+                    <tr id="panFileRow" class="file-upload-row">
+                        <td class="field-label">Add PAN Card <span style="color:rgb(21, 20, 20);font-weight:bold;" title="Mandatory">*</span></td>
+                        <td colspan="2">
+                            <div class="file-upload-area" id="panDropZone">
+                                <input type="file" id="panFile" name="panFile" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;">
+                                <div class="file-upload-content" onclick="document.getElementById('panFile').click()">
+                                    <span class="file-upload-icon">📎</span>
+                                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                                    <span class="file-upload-hint">PDF, JPG, PNG accepted</span>
+                                </div>
+                                <div class="file-list" id="panFileList"></div>
+                            </div>
+                            <div id="panUploadSuccess" style="display:none; color:green; font-weight:bold; margin-top:5px;">✅ File uploaded successfully!</div>
+                            <div id="panUploadWarning" style="display:none; color:red; font-weight:bold; margin-top:5px;">⚠️ Please upload PAN Card file.</div>
+                        </td>
+                    </tr>
+                    <!-- MSME Section -->
+                    <tr>
+                        <td id="msmeLabel">MSME No.*</td>
+                        <td colspan="2">MSME Certificate Attached?</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="msme" name="msme" required></td>
+                        <td colspan="2">
+                            <label><input type="radio" name="msmeCert" value="Yes" checked onchange="toggleFileUpload('msmeFileRow', this)"> Yes</label>
+                            <label><input type="radio" name="msmeCert" value="No" onchange="toggleFileUpload('msmeFileRow', this)"> No</label>
+                        </td>
+                    </tr>
+                    <tr id="msmeFileRow" class="file-upload-row">
+                        <td class="field-label">Add MSME Certificate</td>
+                        <td colspan="2">
+                            <div class="file-upload-area" id="msmeDropZone">
+                                <input type="file" id="msmeFile" name="msmeFile" accept=".pdf,.jpg,.jpeg,.png" multiple style="display:none;">
+                                <div class="file-upload-content" onclick="document.getElementById('msmeFile').click()">
+                                    <span class="file-upload-icon">📎</span>
+                                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                                    <span class="file-upload-hint">PDF, JPG, PNG accepted</span>
+                                </div>
+                                <div class="file-list" id="msmeFileList"></div>
+                            </div>
+                            <div id="msmeUploadSuccess" style="display:none; color:green; font-weight:bold; margin-top:5px;">✅ File uploaded successfully!</div>
+                            <div id="msmeUploadWarning" style="display:none; color:red; font-weight:bold; margin-top:5px;">⚠️ Please upload MSME Certificate file.</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 2. Address -->
+            <div class="section">
+                <div class="section-title">2. Address</div>
+                <table class="address-table">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header">Billing Address</td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Shipping Address</span>
+                                <label id="sameAsBillingLabel" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#1a4b7a;cursor:pointer;white-space:nowrap;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;">
+                                    <input type="checkbox" id="sameAsBilling" style="width:14px;height:14px;cursor:pointer;accent-color:#1a4b7a;">
+                                    Same as Billing
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="field-label">Address Line 1 *</td>
+                        <td><input type="text" id="billLine1" name="billLine1" required></td>
+                        <td class="field-label">Address Line 1 *</td>
+                        <td><input type="text" id="shipLine1" name="shipLine1" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Address Line 2</td>
+                        <td><input type="text" id="billLine2" name="billLine2"></td>
+                        <td class="field-label">Address Line 2</td>
+                        <td><input type="text" id="shipLine2" name="shipLine2"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Address Line 3</td>
+                        <td><input type="text" id="billLine3" name="billLine3"></td>
+                        <td class="field-label">Address Line 3</td>
+                        <td><input type="text" id="shipLine3" name="shipLine3"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">City/Town/Village *</td>
+                        <td><input type="text" id="billCity" name="billCity" required></td>
+                        <td class="field-label">City/Town/Village *</td>
+                        <td><input type="text" id="shipCity" name="shipCity" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">State / U.T Code *</td>
+                        <td><input type="text" id="billState" name="billState" required></td>
+                        <td class="field-label">State / U.T Code *</td>
+                        <td><input type="text" id="shipState" name="shipState" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Pin/Post Code *</td>
+                        <td><input type="text" id="billPin" name="billPin" required></td>
+                        <td class="field-label">Pin/Post Code *</td>
+                        <td><input type="text" id="shipPin" name="shipPin" required></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 3. Banking Information -->
+            <div class="section">
+                <div class="section-title">3. Banking Information *</div>
+                <table class="banking-table">
+                    <tr>
+                        <td>Name of Bank</td>
+                        <td>Branch Name</td>
+                        <td>Bank Account No</td>
+                        <td>Bank Account Type</td>
+                        <td>IFSC</td>
+                        <td>Micr Code</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="bankName" name="bankName" ></td>
+                        <td><input type="text" id="branchName" name="branchName"></td>
+                        <td><input type="text" id="accountNo" name="accountNo"></td>
+                        <td><input type="text" id="accountType" name="accountType"></td>
+                        <td><input type="text" id="ifsc" name="ifsc"></td>
+                        <td><input type="text" id="micr" name="micr"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 4. Contact Details -->
+            <div class="section">
+                <div class="section-title">4. Contact Details</div>
+
+                <!-- IT & Purchase -->
+                <table class="contact-table">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header">IT Department *</td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Purchase Department *</span>
+                                <button type="button" onclick="copyFromIT('pur')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="itName" name="itName"></td>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="purName" name="purName"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="itDesig" name="itDesig" required></td>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="purDesig" name="purDesig" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="itEmail" name="itEmail" required></td>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="purEmail" name="purEmail" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="itMobile" name="itMobile" required></td>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="purMobile" name="purMobile" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="itLandline" name="itLandline"></td>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="purLandline" name="purLandline"></td>
+                    </tr>
+                </table>
+
+                <!-- Accounts & Finance -->
+                <table class="contact-table" style="border-top: 2px solid #bbb;">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Accounts Department *</span>
+                                <button type="button" onclick="copyFromIT('acc')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Finance Department *</span>
+                                <button type="button" onclick="copyFromIT('fin')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="accName" name="accName"></td>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="finName" name="finName"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="accDesig" name="accDesig" required></td>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="finDesig" name="finDesig" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="accEmail" name="accEmail" required></td>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="finEmail" name="finEmail" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="accMobile" name="accMobile" required></td>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="finMobile" name="finMobile" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="accLandline" name="accLandline"></td>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="finLandline" name="finLandline"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Declaration -->
+            <div class="declaration">
+                I/We Certify that the information furnished above is correct and complete to the best of my/our Knowledge and belief.
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <table>
+                    <tr>
+                        <td colspan="2">Declaration & Information Provided By:</td>
+                    </tr>
+                    <tr>
+                        <td>Name:</td>
+                        <td>Designation:</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="declName" name="declName" required></td>
+                        <td><input type="text" id="declDesig" name="declDesig" required></td>
+                    </tr>
+                    <tr>
+                        <td>Date:</td>
+                        <td>Email ID:</td>
+                    </tr>
+                    <tr>
+                        <td><input type="date" id="declDate" name="declDate" required></td>
+                        <td><input type="email" id="declEmail" name="declEmail" required></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="button" onclick="clearForm()">Reset</button>
+                <button type="submit">Submit & View</button>
+            </div>
+        </form>
+
+        <!-- ITCG Branding Footer -->
+        <div class="itcg-branding-bar" style="display:flex;align-items:center;justify-content:center;gap:12px;
+             padding:12px 14px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;margin-top:16px;
+             flex-wrap:wrap;text-align:center;">
+            <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
+                 style="height:36px;width:auto;object-fit:contain;display:block;">
+            <div style="font-size:12px;color:#475569;line-height:1.4;">
+                <strong style="color:#1a4b7a;">Delivering Technology</strong> — ITCG Solutions Private Limited |
+                Vadodara | Ahmedabad | Surat | Rajkot | Indore
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (!window.regCounter) window.regCounter = 0;
+        
+        function generateUniqueRegNo() {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            window.regCounter += 1;
+            const counterStr = String(window.regCounter).padStart(3, '0');
+            return `${dd}${yyyy}${counterStr}`;
+        }
+
+        function getFieldValue(id) {
+            const el = document.getElementById(id);
+            return el ? el.value.trim() || '—' : '—';
+        }
+
+        function getRadioValue(name) {
+            const radio = document.querySelector(`input[name="${name}"]:checked`);
+            return radio ? radio.value : 'Yes';
+        }
+
+        let pendingRegistrationId = null;
+
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            const type = document.getElementById('domainType').value;
+
+if (type === 'Vendor') {
+    const bankFields = [
+        { id: 'bankName', name: 'Bank Name' },
+        { id: 'branchName', name: 'Branch Name' },
+        { id: 'accountNo', name: 'Account Number' },
+        { id: 'accountType', name: 'Account Type' },
+        { id: 'ifsc', name: 'IFSC Code' },
+        { id: 'micr', name: 'MICR Code' }
+    ];
+
+    for (let field of bankFields) {
+        const value = document.getElementById(field.id).value.trim();
+        if (!value) {
+            alert(field.name + ' is required for Vendor!');
+            document.getElementById(field.id).focus();
+            return;
+        }
+    }
+}
+            e.preventDefault();
+
+            // Validate Industry Registration Type selected
+            if (!document.getElementById('industryRegType').value) {
+                alert('Please select an Industry Registration Type.');
+                document.getElementById('industryRegType').focus();
+                return;
+            }
+
+            // Validate CIN/LLPIN, PAN and GSTIN formats
+            if (!validateLegalIdentifiers()) {
+                return;
+            }
+
+            // Validate mandatory file uploads before submitting
+            if (!validateFileUploads()) {
+                return;
+            }
+
+            const declEmail = document.getElementById('declEmail')?.value?.trim();
+            if (!declEmail) {
+                alert('Please enter the Declarant Email ID before submitting.');
+                document.getElementById('declEmail')?.focus();
+                return;
+            }
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const formData = {};
+            const inputs = this.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.type === 'radio') {
+                    if (input.checked) formData[input.name] = input.value;
+                } else {
+                    formData[input.name] = input.value;
+                }
+            });
+
+            formData.gstCert = document.querySelector('input[name="gstCert"]:checked')?.value || 'Yes';
+            formData.panCert = document.querySelector('input[name="panCert"]:checked')?.value || 'Yes';
+
+            // If industry is "Other", use the custom text input value
+            if (formData.industry === 'Other') {
+                const otherVal = document.getElementById('industryOther').value.trim();
+                if (otherVal) formData.industry = otherVal;
+            }
+
+            const regNo = generateUniqueRegNo();
+            formData.registrationNumber = regNo;
+            document.getElementById('uniqueRegDisplay').textContent = `Registration Number: ${regNo}`;
+
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+
+                if (result.success && result.requireOtp) {
+                    pendingRegistrationId = result.id;
+
+                    // Upload documents in background
+                    const gstFile = document.getElementById('gstFile');
+                    const panFile = document.getElementById('panFile');
+                    const msmeFile = document.getElementById('msmeFile');
+                    const hasGst = gstFile && gstFile.files.length > 0;
+                    const hasPan = panFile && panFile.files.length > 0;
+                    const hasMsme = msmeFile && msmeFile.files.length > 0;
+                    if (hasGst || hasPan || hasMsme) {
+                        const uploadData = new FormData();
+                        uploadData.append('gst_number', formData.gst || '');
+                        uploadData.append('pan_number', formData.pan || '');
+                        uploadData.append('msme_number', formData.msme || '');
+                        if (hasGst) uploadData.append('gstFile', gstFile.files[0]);
+                        if (hasPan) uploadData.append('panFile', panFile.files[0]);
+                        if (hasMsme) uploadData.append('msmeFile', msmeFile.files[0]);
+                        await fetch('/upload-documents', { method: 'POST', body: uploadData });
+                    }
+
+                    // Show OTP modal
+                    document.getElementById('otpEmailDisplay').textContent = `OTP sent to: ${declEmail}`;
+                    document.getElementById('otpInput').value = '';
+                    document.getElementById('otpError').style.display = 'none';
+                    document.getElementById('resendMsg').style.display = 'none';
+                    const modal = document.getElementById('otpModal');
+                    modal.style.display = 'flex';
+                    setTimeout(() => document.getElementById('otpInput').focus(), 100);
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Error submitting form: ' + error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        async function submitOtp() {
+            const otp = document.getElementById('otpInput').value.trim();
+            const errEl = document.getElementById('otpError');
+            if (otp.length !== 6) {
+                errEl.textContent = 'Please enter a valid 6-digit OTP.';
+                errEl.style.display = 'block';
+                return;
+            }
+            errEl.style.display = 'none';
+            const btn = document.getElementById('otpVerifyBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            try {
+                const resp = await fetch('/api/verify-submission-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    document.getElementById('otpModal').style.display = 'none';
+                    window.location.href = result.previewUrl;
+                } else {
+                    errEl.textContent = result.error || 'Invalid OTP. Please try again.';
+                    errEl.style.display = 'block';
+                    document.getElementById('otpInput').value = '';
+                    document.getElementById('otpInput').focus();
+                }
+            } catch (err) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify OTP';
+            }
+        }
+
+        async function resendOtp(e) {
+            e.preventDefault();
+            const msgEl = document.getElementById('resendMsg');
+            msgEl.style.display = 'none';
+            try {
+                const resp = await fetch('/api/resend-otp', { method: 'POST' });
+                const result = await resp.json();
+                msgEl.textContent = result.success ? 'OTP resent successfully!' : (result.error || 'Failed to resend.');
+                msgEl.style.color = result.success ? '#28a745' : '#dc3545';
+                msgEl.style.display = 'block';
+            } catch {
+                msgEl.textContent = 'Network error. Please try again.';
+                msgEl.style.color = '#dc3545';
+                msgEl.style.display = 'block';
+            }
+        }
+
+        // Allow pressing Enter in OTP input to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInput = document.getElementById('otpInput');
+            if (otpInput) {
+                otpInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') submitOtp();
+                });
+            }
+        });
+
+        function clearForm() {
+            document.getElementById('registrationForm').reset();
+            const regNo = generateUniqueRegNo();
+            document.getElementById('uniqueRegDisplay').textContent = `Registration Number: ${regNo}`;
+            // Hide other industry field on reset
+            document.getElementById('industryOther').style.display = 'none';
+            // Reset CIN/LLPIN toggle
+            toggleIndustryRegType();
+        }
+
+        // ── Industry Registration Type toggle (CIN vs LLPIN) ──
+        function toggleIndustryRegType() {
+            const regType = document.getElementById('industryRegType').value;
+            const cinInput = document.getElementById('cin');
+            const llpinInput = document.getElementById('llpin');
+            const label = document.getElementById('cinLlpinLabel');
+            const errEl = document.getElementById('cinLlpinError');
+
+            if (errEl) errEl.style.display = 'none';
+
+            if (regType === 'LLP') {
+                // Show LLPIN, hide CIN
+                cinInput.style.display = 'none';
+                cinInput.required = false;
+                cinInput.value = '';
+                llpinInput.style.display = 'block';
+                llpinInput.required = true;
+                if (label) label.textContent = 'LLPIN No.*';
+            } else if (regType === 'Private Limited Company' || regType === 'Public Limited Company') {
+                // Show CIN, hide LLPIN
+                cinInput.style.display = 'block';
+                cinInput.required = true;
+                llpinInput.style.display = 'none';
+                llpinInput.required = false;
+                llpinInput.value = '';
+                if (label) label.textContent = 'CIN No.*';
+            } else {
+                // No type selected — show CIN/LLPIN combined field, both required (min/max validated on submit)
+                cinInput.style.display = 'block';
+                cinInput.required = true;
+                llpinInput.style.display = 'none';
+                llpinInput.required = false;
+                llpinInput.value = '';
+                if (label) label.textContent = 'CIN/LLPIN No.*';
+            }
+        }
+
+        // ── CIN/PAN/GST/LLPIN format validation ──
+        function validateLegalIdentifiers() {
+            const regType = document.getElementById('industryRegType').value;
+            const cinInput = document.getElementById('cin');
+            const llpinInput = document.getElementById('llpin');
+            const panInput = document.getElementById('pan');
+            const gstInput = document.getElementById('gst');
+            const errEl = document.getElementById('cinLlpinError');
+
+            const cinVal = cinInput.value.trim();
+            const llpinVal = llpinInput.value.trim();
+            const panVal = panInput.value.trim();
+            const gstVal = gstInput.value.trim();
+
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+
+            // CIN / LLPIN length rules
+            if (regType === 'LLP') {
+                if (llpinVal.length !== 7) {
+                    errEl.textContent = 'LLPIN must be exactly 7 characters.';
+                    errEl.style.display = 'block';
+                    llpinInput.focus();
+                    return false;
+                }
+            } else if (regType === 'Private Limited Company' || regType === 'Public Limited Company') {
+                if (cinVal.length !== 21) {
+                    errEl.textContent = 'CIN must be exactly 21 characters.';
+                    errEl.style.display = 'block';
+                    cinInput.focus();
+                    return false;
+                }
+            } else {
+                // Generic CIN/LLPIN field: min 7, max 21 characters
+                if (cinVal.length < 7 || cinVal.length > 21) {
+                    errEl.textContent = 'CIN/LLPIN must be between 7 and 21 characters.';
+                    errEl.style.display = 'block';
+                    cinInput.focus();
+                    return false;
+                }
+            }
+
+            // PAN — 10 characters mandatory
+            if (panVal.length !== 10) {
+                alert('PAN number must be exactly 10 characters.');
+                panInput.focus();
+                return false;
+            }
+
+            // GSTIN — 15 characters mandatory
+            if (gstVal.length !== 15) {
+                alert('GSTIN must be exactly 15 characters.');
+                gstInput.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // ── Industry type toggle ──
+        function toggleOtherIndustry(sel) {
+            const otherInput = document.getElementById('industryOther');
+            // "Other" free-text field
+            if (sel.value === 'Other') {
+                otherInput.style.display = 'block';
+                otherInput.required = true;
+                otherInput.focus();
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+            // "Consumer" — make GST & MSME optional
+            toggleConsumerMode(sel.value === 'Consumer');
+        }
+
+        function toggleConsumerMode(isConsumer) {
+            // Fields to make optional/required
+            const gstInput  = document.getElementById('gst');
+            const msmeInput = document.getElementById('msme');
+
+            // Label cells
+            const gstLabel  = document.getElementById('gstLabel');
+            const msmeLabel = document.getElementById('msmeLabel');
+
+            // Upload label spans
+            const gstUploadLabel  = document.querySelector('#gstFileRow .field-label');
+            const msmeUploadLabel = document.querySelector('#msmeFileRow .field-label');
+
+            if (isConsumer) {
+                // Remove required from GST & MSME number inputs
+                gstInput.required  = false;
+                msmeInput.required = false;
+
+                // Update labels — replace * with (Optional) badge
+                gstLabel.innerHTML  = 'GST <span style="color:#16a34a;font-size:11px;font-weight:600;background:#dcfce7;padding:1px 6px;border-radius:4px;">Optional</span>';
+                msmeLabel.innerHTML = 'MSME No. <span style="color:#16a34a;font-size:11px;font-weight:600;background:#dcfce7;padding:1px 6px;border-radius:4px;">Optional</span>';
+
+                // Update upload labels too
+                if (gstUploadLabel)  gstUploadLabel.innerHTML  = 'Add GST Certificate <span style="color:#16a34a;font-size:11px;font-weight:600;background:#dcfce7;padding:1px 6px;border-radius:4px;">Optional</span>';
+                if (msmeUploadLabel) msmeUploadLabel.innerHTML = 'Add MSME Certificate <span style="color:#16a34a;font-size:11px;font-weight:600;background:#dcfce7;padding:1px 6px;border-radius:4px;">Optional</span>';
+
+                // Show a notice banner if not already present
+                let banner = document.getElementById('consumerNoticeBanner');
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'consumerNoticeBanner';
+                    banner.style.cssText = 'background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534;margin-bottom:10px;display:flex;align-items:center;gap:8px;';
+                    banner.innerHTML = '<span style="font-size:16px;">ℹ️</span> <span>As a <strong>Consumer</strong>, GST number, MSME number, and their document uploads are <strong>not mandatory</strong>. You may leave them blank or write "NA".</span>';
+                    const gstRow = document.getElementById('gstLabel');
+                    gstRow.closest('table').insertAdjacentElement('beforebegin', banner);
+                } else {
+                    banner.style.display = 'flex';
+                }
+            } else {
+                // Restore required
+                gstInput.required  = true;
+                msmeInput.required = true;
+
+                // Restore labels
+                gstLabel.innerHTML  = 'GST*';
+                msmeLabel.innerHTML = 'MSME No.*';
+
+                if (gstUploadLabel)  gstUploadLabel.innerHTML  = 'Add GST Certificate <span style="color:rgb(21, 20, 20);font-weight:bold;" title="Mandatory">*</span>';
+                if (msmeUploadLabel) msmeUploadLabel.innerHTML = 'Add MSME Certificate';
+
+                // Hide banner
+                const banner = document.getElementById('consumerNoticeBanner');
+                if (banner) banner.style.display = 'none';
+            }
+        }
+
+        // ── Help Modal ──
+        function openHelpPDF() {
+            document.getElementById('helpModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            switchHelpTab('guide');
+        }
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        function switchHelpTab(tab) {
+            const tabs = ['guide', 'fields', 'pdf'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tabBtn-' + t);
+                const pane = document.getElementById('helpTab-' + t);
+                if (t === tab) {
+                    btn.style.color = '#1a4b7a';
+                    btn.style.borderBottom = '3px solid #1a4b7a';
+                    btn.style.background = '#fff';
+                    pane.style.display = (t === 'pdf') ? 'flex' : 'block';
+                } else {
+                    btn.style.color = '#64748b';
+                    btn.style.borderBottom = '3px solid transparent';
+                    btn.style.background = 'transparent';
+                    pane.style.display = 'none';
+                }
+            });
+            if (tab === 'pdf') {
+                const frame = document.getElementById('helpPdfFrame');
+                if (!frame.src || frame.src === window.location.href) {
+                    frame.src = '/static/Registration_Instructions_Guide.pdf';
+                }
+            }
+        }
+        // Close modal on backdrop click
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) closeHelpModal();
+        });
+
+
+
+        // ── File Upload Logic ──
+        function toggleFileUpload(rowId, radioEl) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            row.style.display = (radioEl.value === 'Yes' && radioEl.checked) ? 'table-row' : 'none';
+        }
+
+        function initFileUpload(inputId, listId, dropZoneId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const dropZone = document.getElementById(dropZoneId);
+            // Derive success/warning element IDs from inputId (e.g. gstFile -> gstUploadSuccess)
+            const prefix = inputId.replace('File', '');
+            const successEl = document.getElementById(prefix + 'UploadSuccess');
+            const warningEl = document.getElementById(prefix + 'UploadWarning');
+
+            function handleFiles(files) {
+                renderFiles(files, list);
+                if (successEl && warningEl) {
+                    if (files && files.length > 0) {
+                        successEl.style.display = 'block';
+                        warningEl.style.display = 'none';
+                    } else {
+                        successEl.style.display = 'none';
+                        warningEl.style.display = 'none';
+                    }
+                }
+            }
+
+            input.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+            dropZone.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        function renderFiles(files, listEl) {
+            listEl.innerHTML = '';
+            Array.from(files).forEach(function(file) {
+                const tag = document.createElement('span');
+                tag.className = 'file-tag';
+                tag.innerHTML = '📄 ' + file.name + ' <span class="remove-file" title="Remove">✕</span>';
+                tag.querySelector('.remove-file').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    tag.remove();
+                });
+                listEl.appendChild(tag);
+            });
+        }
+
+        function validateFileUploads() {
+            let valid = true;
+            const gstRow = document.getElementById('gstFileRow');
+            const panRow = document.getElementById('panFileRow');
+            const msmeRow = document.getElementById('msmeFileRow');
+            const gstFile = document.getElementById('gstFile');
+            const panFile = document.getElementById('panFile');
+            const msmeFile = document.getElementById('msmeFile');
+            const gstSuccess = document.getElementById('gstUploadSuccess');
+            const gstWarning = document.getElementById('gstUploadWarning');
+            const panSuccess = document.getElementById('panUploadSuccess');
+            const panWarning = document.getElementById('panUploadWarning');
+            const msmeSuccess = document.getElementById('msmeUploadSuccess');
+            const msmeWarning = document.getElementById('msmeUploadWarning');
+
+            if (gstRow && gstRow.style.display !== 'none') {
+                if (!gstFile || gstFile.files.length === 0) {
+                    if (gstWarning) gstWarning.style.display = 'block';
+                    if (gstSuccess) gstSuccess.style.display = 'none';
+                    valid = false;
+                }
+            }
+            if (panRow && panRow.style.display !== 'none') {
+                if (!panFile || panFile.files.length === 0) {
+                    if (panWarning) panWarning.style.display = 'block';
+                    if (panSuccess) panSuccess.style.display = 'none';
+                    valid = false;
+                }
+            }
+            if (msmeRow && msmeRow.style.display !== 'none') {
+                if (!msmeFile || msmeFile.files.length === 0) {
+                    if (msmeWarning) msmeWarning.style.display = 'block';
+                    if (msmeSuccess) msmeSuccess.style.display = 'none';
+                    valid = false;
+                }
+            }
+            return valid;
+        }
+
+        // ── Same as Billing Address ───────────────────────────────────────
+        const sameAsBilling = document.getElementById('sameAsBilling');
+        const shipFields = ['shipLine1','shipLine2','shipLine3','shipCity','shipState','shipPin'];
+        const billFields = ['billLine1','billLine2','billLine3','billCity','billState','billPin'];
+
+        function syncShippingFromBilling() {
+            billFields.forEach((b, i) => {
+                const s = document.getElementById(shipFields[i]);
+                const bEl = document.getElementById(b);
+                s.value = bEl.value;
+                s.readOnly = true;
+                s.style.background = '#f0f7ff';
+                s.style.color = '#555';
+                s.removeAttribute('required');
+            });
+        }
+
+        function unsyncShipping() {
+            shipFields.forEach(id => {
+                const s = document.getElementById(id);
+                s.readOnly = false;
+                s.style.background = '';
+                s.style.color = '';
+                // restore required on mandatory fields
+                if (['shipLine1','shipCity','shipState','shipPin'].includes(id)) {
+                    s.setAttribute('required', '');
+                }
+            });
+        }
+
+        sameAsBilling.addEventListener('change', function () {
+            if (this.checked) {
+                syncShippingFromBilling();
+                // live-sync: if billing changes while checkbox is on, update shipping too
+                billFields.forEach((b, i) => {
+                    document.getElementById(b)._syncListener = function () {
+                        if (sameAsBilling.checked) {
+                            document.getElementById(shipFields[i]).value = this.value;
+                        }
+                    };
+                    document.getElementById(b).addEventListener('input', document.getElementById(b)._syncListener);
+                });
+            } else {
+                unsyncShipping();
+                billFields.forEach(b => {
+                    const el = document.getElementById(b);
+                    if (el._syncListener) {
+                        el.removeEventListener('input', el._syncListener);
+                        delete el._syncListener;
+                    }
+                });
+            }
+        });
+
+        // ── Copy IT Department → other departments ────────────────────────
+        const itFields = {
+            Name:     'itName',
+            Desig:    'itDesig',
+            Email:    'itEmail',
+            Mobile:   'itMobile',
+            Landline: 'itLandline'
+        };
+
+        function copyFromIT(prefix) {
+            const suffixes = ['Name','Desig','Email','Mobile','Landline'];
+            let anyFilled = false;
+            suffixes.forEach(s => {
+                const itVal = document.getElementById('it' + s);
+                if (itVal && itVal.value.trim()) anyFilled = true;
+            });
+            if (!anyFilled) {
+                alert('Please fill in the IT Department details first before copying.');
+                return;
+            }
+            suffixes.forEach(s => {
+                const itEl  = document.getElementById('it' + s);
+                const dest  = document.getElementById(prefix + s);
+                if (itEl && dest) {
+                    dest.value = itEl.value;
+                    // brief highlight so user sees what was filled
+                    dest.style.transition = 'background 0.3s';
+                    dest.style.background = '#d1fae5';
+                    setTimeout(() => { dest.style.background = ''; }, 1200);
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const regNo = generateUniqueRegNo();
+            document.getElementById('uniqueRegDisplay').textContent = 'Registration Number: ' + regNo;
+
+            // Show file upload rows by default (since "Yes" is pre-checked)
+            document.getElementById('gstFileRow').style.display = 'table-row';
+            document.getElementById('panFileRow').style.display = 'table-row';
+            document.getElementById('msmeFileRow').style.display = 'table-row';
+
+            initFileUpload('gstFile', 'gstFileList', 'gstDropZone');
+            initFileUpload('panFile', 'panFileList', 'panDropZone');
+            initFileUpload('msmeFile', 'msmeFileList', 'msmeDropZone');
+
+            // Initialize CIN/LLPIN field state
+            toggleIndustryRegType();
+        });
+</body>
+</html>

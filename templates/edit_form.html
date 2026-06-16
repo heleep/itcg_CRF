@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITCG – Edit Registration Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #0b1829; --navy-mid: #0f2035; --navy-light: #162840;
+            --cyan: #00c8d4; --white: #ffffff; --text: #e8f0f8; --text-muted: #7a9ab5;
+            --border: rgba(0,200,212,0.2);
+        }
+
+        /* Override body for page layout */
+        body { background: #f0f4f8; font-family: 'Inter', sans-serif; }
+
+        /* Navbar */
+        .itcg-topbar { padding: 7px 40px; display: flex; justify-content: flex-end; gap: 28px; font-size: 12px; color: rgba(255,255,255,0.6); background-color: #1a2e44; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .itcg-topbar a { color: rgba(255,255,255,0.6); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .itcg-topbar a:hover { color: #fff; }
+        .itcg-topbar i { color: #48b8e0; }
+        .itcg-navbar { background: #ffffff; border-bottom: 1px solid #dde3ea; box-shadow: 0 1px 3px rgba(0,0,0,0.08); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+        .itcg-nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+        .itcg-logo-icon { width: 40px; height: 40px; background: #0077b6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff; font-weight: 800; font-family: 'Montserrat', sans-serif; }
+        .itcg-brand { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 700; color: #1a2e44; }
+        .itcg-sub { font-size: 10px; color: #0077b6; letter-spacing: 2px; text-transform: uppercase; }
+        .itcg-nav-right { display: flex; align-items: center; gap: 16px; }
+        .itcg-nav-user { font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px; }
+        .itcg-nav-user i { color: #0077b6; }
+        .btn-nav-logout { background: rgba(220,38,38,0.08); color: #dc2626; border: 1px solid rgba(220,38,38,0.2); padding: 7px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .btn-nav-logout:hover { background: rgba(220,38,38,0.14); }
+
+        /* Edit banner */
+        .edit-banner { background: var(--navy); border-bottom: 1px solid var(--border); padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .edit-banner-left { display: flex; align-items: center; gap: 14px; }
+        .edit-icon { width: 40px; height: 40px; background: rgba(0,200,212,0.1); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--cyan); font-size: 16px; }
+        .edit-text h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+        .edit-text p { font-size: 12px; color: var(--text-muted); }
+        .edit-reg-id { font-size: 13px; font-weight: 600; color: var(--cyan); display: flex; align-items: center; gap: 8px; padding: 7px 14px; background: rgba(0,200,212,0.08); border: 1px solid var(--border); border-radius: 6px; }
+
+        /* Form container override to maintain existing form design */
+        .form-container { max-width: 1100px; margin: 28px auto; padding: 0 24px; }
+
+        /* Action buttons */
+        .edit-actions { display: flex; gap: 12px; justify-content: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--cyan); color: var(--navy); }
+        .btn-primary:not(:disabled):hover { background: #05dae7; box-shadow: 0 6px 20px rgba(0,200,212,0.3); transform: translateY(-1px); }
+        .btn-secondary { background: #fff; color: #333; border: 1px solid #dee2e6; }
+        .btn-secondary:hover { background: #f8f9fa; }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+
+        /* Status message */
+        .status-msg { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: none; align-items: center; gap: 10px; }
+        .status-msg.show { display: flex; }
+        .status-success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .status-error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+
+        /* Loader */
+        .btn-loader { width: 16px; height: 16px; border: 2px solid rgba(11,24,41,0.25); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .site-footer { background: var(--navy-mid); border-top: 2px solid var(--cyan); padding: 14px 40px; text-align: center; font-size: 12px; color: #7a9ab5; margin-top: 40px; }
+        .site-footer a { color: #7a9ab5; text-decoration: none; margin: 0 10px; }
+        .site-footer a:hover { color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <!-- Topbar + Navbar -->
+    <div class="itcg-topbar">
+        <a href="tel:+912249700800"><i class="fas fa-phone-alt"></i> +91 22 4970 0800</a>
+        <a href="mailto:info@itcgindia.com"><i class="fas fa-envelope"></i> info@itcgindia.com</a>
+    </div>
+    <nav class="itcg-navbar">
+        <a href="/" class="nav-logo">
+            <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
+                 style="height:44px; width:auto; object-fit:contain; display:block;">
+        </a>
+        <div class="itcg-nav-right"></div>
+    </nav>
+
+    <!-- ITCG Branding Bar -->
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 40px;background:#f8fafc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;">
+        <div style="font-size:12px;color:#475569;line-height:1.4;">
+            <strong style="color:#1a4b7a;">Delivering Technology</strong> — ITCG Solutions Private Limited |
+            Vadodara | Ahmedabad | Surat | Rajkot | Indore
+        </div>
+    </div>
+
+    <!-- Edit banner -->
+    <div class="edit-banner">
+        <div class="edit-banner-left">
+            <div class="edit-icon"><i class="fas fa-edit"></i></div>
+            <div class="edit-text">
+                <h3>Editing Registration Form</h3>
+                <p>Make changes below and save to update your record</p>
+            </div>
+        </div>
+        <div class="edit-reg-id"><i class="fas fa-id-card"></i> REG ID: {{ data.registration_number }}</div>
+    </div>
+
+    <!-- Main form (reuses existing form CSS) -->
+    <div class="form-container">
+        <!-- Action buttons at top -->
+        <div class="edit-actions">
+            <a href="/preview/{{ data.id }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Preview
+            </a>
+            <button class="btn btn-primary" id="saveBtn" onclick="saveChanges()">
+                <div class="btn-loader" id="saveLoader"></div>
+                <i class="fas fa-save" id="saveIcon"></i>
+                <span>Save & Preview</span>
+            </button>
+        </div>
+
+        <!-- Status messages -->
+        <div class="status-msg status-success" id="successMsg"><i class="fas fa-check-circle"></i><span>Changes saved! Redirecting to preview...</span></div>
+        <div class="status-msg status-error" id="errorMsg"><i class="fas fa-exclamation-circle"></i><span id="errorText">Error saving changes</span></div>
+
+        <!-- Registration form (keeping original design) -->
+        <form id="editForm">
+            <!-- Domain Selection -->
+            <div class="domain-section" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+                <div>
+                    <label for="domainType">Register as:</label>
+                    <select id="domainType" name="domainType" required>
+                        <option value="Vendor" {% if data.domain_type == 'Vendor' %}selected{% endif %}>Vendor</option>
+                        <option value="Customer" {% if data.domain_type == 'Customer' %}selected{% endif %}>Customer</option>
+                        <option value="Partner" {% if data.domain_type == 'Partner' %}selected{% endif %}>Partner</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="industryRegType">Industry Registration Type: *</label>
+                    <select id="industryRegType" name="industryRegType" required onchange="toggleIndustryRegType()">
+                        <option value="">Select Type</option>
+                        <option value="Private Limited Company" {% if data.industry_reg_type == 'Private Limited Company' %}selected{% endif %}>Private Limited Company</option>
+                        <option value="Public Limited Company" {% if data.industry_reg_type == 'Public Limited Company' %}selected{% endif %}>Public Limited Company</option>
+                        <option value="LLP" {% if data.industry_reg_type == 'LLP' %}selected{% endif %}>LLP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 1. Legal Information -->
+            <div class="section">
+                <div class="section-title">1. Legal Information</div>
+                <table class="legal-table">
+                    <tr><td>Name of Vendor/Customer *</td><td>Website *</td><td>Industry Type</td></tr>
+                    <tr>
+                        <td><input type="text" id="vendorName" name="vendorName" value="{{ data.vendor_name or '' }}" required></td>
+                        <td><input type="url" id="website" name="website" value="{{ data.website or '' }}" required></td>
+                        <td>
+                            <select id="industry" name="industry">
+                                {% for opt in ['Information Technology','Manufacturing','Healthcare','Finance','Retail','Construction','Logistics','Education','Energy','Other'] %}
+                                <option value="{{ opt }}" {% if data.industry_type == opt %}selected{% endif %}>{{ opt }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td>Contact No.</td><td id="cinLlpinLabel">CIN/LLPIN No.*</td><td>TAN No.*</td></tr>
+                    <tr>
+                        <td><input type="tel" id="contactNo" name="contactNo" value="{{ data.contact_no or '' }}"required></td>
+                        <td>
+                            <input type="text" id="cin" name="cin" maxlength="21" value="{{ data.cin_no or '' }}" required placeholder="21-character CIN">
+                            <input type="text" id="llpin" name="llpin" maxlength="7" value="{{ data.llpin_no or '' }}" required placeholder="7-character LLPIN" style="display:none;margin-top:6px;">
+                            <div id="cinLlpinError" style="display:none;color:red;font-size:12px;margin-top:4px;"></div>
+                        </td>
+                        <td><input type="text" id="tan" name="tan" value="{{ data.tan_no or '' }}" required></td>
+                    </tr>
+                    <tr><td>GST*</td><td colspan="2">GST Certificate Attached?</td></tr>
+                    <tr>
+                        <td><input type="text" id="gst" name="gst" maxlength="15" value="{{ data.gst or '' }}" required></td>
+                        <td colspan="2">
+                            <label><input type="radio" name="gstCert" value="Yes" {% if data.gst_certificate == 'Yes' %}checked{% endif %} onchange="toggleFileUpload('gstFileRow', this)"> Yes</label>
+                            <label><input type="radio" name="gstCert" value="No" {% if data.gst_certificate == 'No' %}checked{% endif %} onchange="toggleFileUpload('gstFileRow', this)"> No</label>
+                        </td>
+                    </tr>
+                    <tr id="gstFileRow" class="file-upload-row" {% if data.gst_certificate != 'Yes' %}style="display:none;"{% endif %}>
+                        <td class="field-label">Add GST Certificate <span style="color:rgb(10, 10, 10);font-weight:bold;" title="Mandatory">*</span></td>
+                        <td colspan="2">
+                            {% if data.gst and data.gst_certificate == 'Yes' %}
+                            <div style="margin-bottom:8px; padding:7px 12px; background:#f0fff4; border:1px solid #9ae6b4; border-radius:6px; font-size:13px; color:#276749;">
+                                <i class="fas fa-check-circle"></i> Existing file: <strong>{{ data.gst }}</strong> (already uploaded — upload below only to replace)
+                            </div>
+                            {% endif %}
+                            <div class="file-upload-area" id="gstDropZone">
+                                <input type="file" id="gstFile" name="gstFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+                                <div class="file-upload-content" onclick="document.getElementById('gstFile').click()">
+                                    <span class="file-upload-icon">📎</span>
+                                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                                    <span class="file-upload-hint">PDF, JPG, PNG accepted</span>
+                                </div>
+                                <div class="file-list" id="gstFileList"></div>
+                            </div>
+                            <div id="gstUploadSuccess" style="display:none; color:green; font-weight:bold; margin-top:5px;">✅ File uploaded successfully!</div>
+                            <div id="gstUploadWarning" style="display:none; color:red; font-weight:bold; margin-top:5px;">⚠️ Please upload GST Certificate file.</div>
+                        </td>
+                    </tr>
+                    <tr><td>PAN*</td><td colspan="2">PAN Card Attached?</td></tr>
+                    <tr>
+                        <td><input type="text" id="pan" name="pan" maxlength="10" value="{{ data.pan or '' }}" required></td>
+                        <td colspan="2">
+                            <label><input type="radio" name="panCert" value="Yes" {% if data.pan_certificate == 'Yes' %}checked{% endif %} onchange="toggleFileUpload('panFileRow', this)"> Yes</label>
+                            <label><input type="radio" name="panCert" value="No" {% if data.pan_certificate == 'No' %}checked{% endif %} onchange="toggleFileUpload('panFileRow', this)"> No</label>
+                        </td>
+                    </tr>
+                    <tr id="panFileRow" class="file-upload-row" {% if data.pan_certificate != 'Yes' %}style="display:none;"{% endif %}>
+                        <td class="field-label">Add PAN Card <span style="color:rgb(17, 17, 17);font-weight:bold;" title="Mandatory">*</span></td>
+                        <td colspan="2">
+                            {% if data.pan and data.pan_certificate == 'Yes' %}
+                            <div style="margin-bottom:8px; padding:7px 12px; background:#f0fff4; border:1px solid #9ae6b4; border-radius:6px; font-size:13px; color:#276749;">
+                                <i class="fas fa-check-circle"></i> Existing file: <strong>{{ data.pan }}</strong> (already uploaded — upload below only to replace)
+                            </div>
+                            {% endif %}
+                            <div class="file-upload-area" id="panDropZone">
+                                <input type="file" id="panFile" name="panFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none;">
+                                <div class="file-upload-content" onclick="document.getElementById('panFile').click()">
+                                    <span class="file-upload-icon">📎</span>
+                                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                                    <span class="file-upload-hint">PDF, JPG, PNG accepted</span>
+                                </div>
+                                <div class="file-list" id="panFileList"></div>
+                            </div>
+                            <div id="panUploadSuccess" style="display:none; color:green; font-weight:bold; margin-top:5px;">✅ File uploaded successfully!</div>
+                            <div id="panUploadWarning" style="display:none; color:red; font-weight:bold; margin-top:5px;">⚠️ Please upload PAN Card file.</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        <!-- 2. Address -->
+            <div class="section">
+                <div class="section-title">2. Address</div>
+                <table class="address-table">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header">Billing Address</td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Shipping Address</span>
+                                <label id="sameAsBillingLabel" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:#1a4b7a;cursor:pointer;white-space:nowrap;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;">
+                                    <input type="checkbox" id="sameAsBilling" style="width:14px;height:14px;cursor:pointer;accent-color:#1a4b7a;">
+                                    Same as Billing
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="field-label">Address Line 1 *</td>
+                        <td><input type="text" id="billLine1" name="billLine1" value="{{ data.billing_line1 or '' }}" required></td>
+                        <td class="field-label">Address Line 1 *</td>
+                        <td><input type="text" id="shipLine1" name="shipLine1" value="{{ data.shipping_line1 or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Address Line 2</td>
+                        <td><input type="text" id="billLine2" name="billLine2" value="{{ data.billing_line2 or '' }}"></td>
+                        <td class="field-label">Address Line 2</td>
+                        <td><input type="text" id="shipLine2" name="shipLine2" value="{{ data.shipping_line2 or '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Address Line 3</td>
+                        <td><input type="text" id="billLine3" name="billLine3" value="{{ data.billing_line3 or '' }}"></td>
+                        <td class="field-label">Address Line 3</td>
+                        <td><input type="text" id="shipLine3" name="shipLine3" value="{{ data.shipping_line3 or '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">City/Town/Village *</td>
+                        <td><input type="text" id="billCity" name="billCity" value="{{ data.billing_city or '' }}" required></td>
+                        <td class="field-label">City/Town/Village *</td>
+                        <td><input type="text" id="shipCity" name="shipCity" value="{{ data.shipping_city or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">State / U.T Code *</td>
+                        <td><input type="text" id="billState" name="billState" value="{{ data.billing_state or '' }}" required></td>
+                        <td class="field-label">State / U.T Code *</td>
+                        <td><input type="text" id="shipState" name="shipState" value="{{ data.shipping_state or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Pin/Post Code *</td>
+                        <td><input type="text" id="billPin" name="billPin" value="{{ data.billing_pin or '' }}" required></td>
+                        <td class="field-label">Pin/Post Code *</td>
+                        <td><input type="text" id="shipPin" name="shipPin" value="{{ data.shipping_pin or '' }}" required></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 3. Banking -->
+            <div class="section">
+                <div class="section-title">3. Banking Information *</div>
+                <table class="banking-table">
+                    <tr>
+                        <td>Name of Bank</td><td>Branch Name</td><td>Bank Account No</td>
+                        <td>Bank Account Type</td><td>IFSC</td><td>Micr Code</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="bankName" name="bankName" value="{{ data.bank_name or '' }}" required></td>
+                        <td><input type="text" id="branchName" name="branchName" value="{{ data.branch_name or '' }}" required></td>
+                        <td><input type="text" id="accountNo" name="accountNo" value="{{ data.account_no or '' }}" required></td>
+                        <td><input type="text" id="accountType" name="accountType" value="{{ data.account_type or '' }}" required></td>
+                        <td><input type="text" id="ifsc" name="ifsc" value="{{ data.ifsc or '' }}" required></td>
+                        <td><input type="text" id="micr" name="micr" value="{{ data.micr or '' }}" required></td>
+                    </tr>
+                </table>
+            </div>
+
+             <!-- 4. Contact Details -->
+            <div class="section">
+                <div class="section-title">4. Contact Details</div>
+
+                <!-- IT & Purchase -->
+                <table class="contact-table">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header">IT Department *</td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Purchase Department *</span>
+                                <button type="button" onclick="copyFromIT('pur')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="itName" name="itName" value="{{ data.it_contact_name or '' }}"></td>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="purName" name="purName" value="{{ data.purchase_contact_name or '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="itDesig" name="itDesig" value="{{ data.it_designation or '' }}" required></td>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="purDesig" name="purDesig" value="{{ data.purchase_designation or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="itEmail" name="itEmail" value="{{ data.it_email or '' }}" required></td>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="purEmail" name="purEmail" value="{{ data.purchase_email or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="itMobile" name="itMobile" value="{{ data.it_mobile or '' }}" required></td>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="purMobile" name="purMobile" value="{{ data.purchase_mobile or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="itLandline" name="itLandline" value="{{ data.it_landline or '' }}"></td>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="purLandline" name="purLandline" value="{{ data.purchase_landline or '' }}"></td>
+                    </tr>
+                </table>
+
+                <!-- Accounts & Finance -->
+                <table class="contact-table" style="border-top: 2px solid #bbb;">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:35%">
+                        <col style="width:15%">
+                        <col style="width:35%">
+                    </colgroup>
+                    <tr>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Accounts Department *</span>
+                                <button type="button" onclick="copyFromIT('acc')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                        <td colspan="2" class="address-section-header" style="padding:0;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;gap:10px;">
+                                <span>Finance Department *</span>
+                                <button type="button" onclick="copyFromIT('fin')" style="font-size:12px;font-weight:500;color:#1a4b7a;background:#e8f4fd;border:1px solid #90caf9;border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap;">
+                                    📋 Same as IT Dept
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="accName" name="accName" value="{{ data.accounts_contact_name or '' }}"></td>
+                        <td class="field-label">Contact Name</td>
+                        <td><input type="text" id="finName" name="finName" value="{{ data.finance_contact_name or '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="accDesig" name="accDesig" value="{{ data.accounts_designation or '' }}" required></td>
+                        <td class="field-label">Designation</td>
+                        <td><input type="text" id="finDesig" name="finDesig" value="{{ data.finance_designation or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="accEmail" name="accEmail" value="{{ data.accounts_email or '' }}" required></td>
+                        <td class="field-label">Email Address</td>
+                        <td><input type="email" id="finEmail" name="finEmail" value="{{ data.finance_email or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="accMobile" name="accMobile" value="{{ data.accounts_mobile or '' }}" required></td>
+                        <td class="field-label">Mobile No.</td>
+                        <td><input type="tel" id="finMobile" name="finMobile" value="{{ data.finance_mobile or '' }}" required></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="accLandline" name="accLandline" value="{{ data.accounts_landline or '' }}"></td>
+                        <td class="field-label">Landline / Fax No.</td>
+                        <td><input type="text" id="finLandline" name="finLandline" value="{{ data.finance_landline or '' }}"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Declaration -->
+            <div class="declaration">
+                I/We Certify that the information furnished above is correct and complete to the best of my/our Knowledge and belief.
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <table>
+                    <tr><td colspan="2">Declaration & Information Provided By:</td></tr>
+                    <tr><td>Name:</td><td>Designation:</td></tr>
+                    <tr>
+                        <td><input type="text" id="declName" name="declName" value="{{ data.declarant_name or '' }}" required></td>
+                        <td><input type="text" id="declDesig" name="declDesig" value="{{ data.declarant_designation or '' }}" required></td>
+                    </tr>
+                    <tr><td>Date:</td><td>Email ID:</td></tr>
+                    <tr>
+                        <td><input type="date" id="declDate" name="declDate" value="{{ data.declarant_date or '' }}" required></td>
+                        <td><input type="email" id="declEmail" name="declEmail" value="{{ data.declarant_email or '' }}" required></td>
+                    </tr>
+                    <tr><td>Signature:</td><td></td></tr>
+                    <tr>
+                        <td><input type="text" id="signature" name="signature" value="{{ data.declarant_signature or '' }}" required></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-actions">
+                <a href="/preview/{{ data.id }}" class="btn btn-secondary" style="padding:10px 24px;">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="button" class="btn btn-primary" id="saveBtn2" onclick="saveChanges()" style="padding:10px 24px;">
+                    <div class="btn-loader" id="saveLoader2"></div>
+                    <i class="fas fa-save" id="saveIcon2"></i>
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <footer class="site-footer">
+        &copy; 2026 ITCG Solutions Pvt. Ltd. All rights reserved.
+        <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+    </footer>
+
+    <script>
+        const REGISTRATION_ID = {{ data.id }};
+
+        function getFormData() {
+            return {
+                registrationNumber: '{{ data.registration_number }}',
+                domainType: document.getElementById('domainType').value,
+                industryRegType: document.getElementById('industryRegType').value,
+                vendorName: document.getElementById('vendorName').value,
+                website: document.getElementById('website').value,
+                industry: document.getElementById('industry').value,
+                contactNo: document.getElementById('contactNo').value,
+                cin: document.getElementById('cin').value,
+                llpin: document.getElementById('llpin').value,
+                tan: document.getElementById('tan').value,
+                gst: document.getElementById('gst').value,
+                gstCert: document.querySelector('input[name="gstCert"]:checked')?.value || 'Yes',
+                pan: document.getElementById('pan').value,
+                panCert: document.querySelector('input[name="panCert"]:checked')?.value || 'Yes',
+                billType: (document.getElementById('billType') || {value: '{{ data.billing_address_type or "" }}'}).value,
+                billLine1: document.getElementById('billLine1').value,
+                billLine2: document.getElementById('billLine2').value,
+                billLine3: document.getElementById('billLine3').value,
+                billCity: document.getElementById('billCity').value,
+                billState: document.getElementById('billState').value,
+                billPin: document.getElementById('billPin').value,
+                shipType: (document.getElementById('shipType') || {value: '{{ data.shipping_address_type or "" }}'}).value,
+                shipLine1: document.getElementById('shipLine1').value,
+                shipLine2: document.getElementById('shipLine2').value,
+                shipLine3: document.getElementById('shipLine3').value,
+                shipCity: document.getElementById('shipCity').value,
+                shipState: document.getElementById('shipState').value,
+                shipPin: document.getElementById('shipPin').value,
+                bankName: document.getElementById('bankName').value,
+                branchName: document.getElementById('branchName').value,
+                accountNo: document.getElementById('accountNo').value,
+                accountType: document.getElementById('accountType').value,
+                ifsc: document.getElementById('ifsc').value,
+                micr: document.getElementById('micr').value,
+                itName: document.getElementById('itName').value,
+                itDesig: document.getElementById('itDesig').value,
+                itEmail: document.getElementById('itEmail').value,
+                itMobile: document.getElementById('itMobile').value,
+                itLandline: document.getElementById('itLandline').value,
+                purName: document.getElementById('purName').value,
+                purDesig: document.getElementById('purDesig').value,
+                purEmail: document.getElementById('purEmail').value,
+                purMobile: document.getElementById('purMobile').value,
+                purLandline: document.getElementById('purLandline').value,
+                accName: document.getElementById('accName').value,
+                accDesig: document.getElementById('accDesig').value,
+                accEmail: document.getElementById('accEmail').value,
+                accMobile: document.getElementById('accMobile').value,
+                accLandline: document.getElementById('accLandline').value,
+                finName: document.getElementById('finName').value,
+                finDesig: document.getElementById('finDesig').value,
+                finEmail: document.getElementById('finEmail').value,
+                finMobile: document.getElementById('finMobile').value,
+                finLandline: document.getElementById('finLandline').value,
+                declName: document.getElementById('declName').value,
+                declDesig: document.getElementById('declDesig').value,
+                declDate: document.getElementById('declDate').value,
+                declEmail: document.getElementById('declEmail').value,
+                signature: document.getElementById('signature').value
+            };
+        }
+
+        async function saveChanges() {
+            // Validate Industry Registration Type selected
+            if (!document.getElementById('industryRegType').value) {
+                alert('Please select an Industry Registration Type.');
+                document.getElementById('industryRegType').focus();
+                return;
+            }
+
+            // Validate CIN/LLPIN, PAN and GSTIN formats
+            if (!validateLegalIdentifiers()) {
+                return;
+            }
+
+            // Validate mandatory file uploads before saving
+            if (!validateFileUploads()) {
+                return;
+            }
+            let formData;
+            try {
+                formData = getFormData();
+            } catch(err) {
+                document.getElementById('errorText').textContent = 'Form error: ' + err.message;
+                document.getElementById('errorMsg').classList.add('show');
+                console.error('getFormData error:', err);
+                return;
+            }
+            ['saveBtn','saveBtn2'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.disabled = true;
+            });
+            ['saveLoader','saveLoader2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'block';
+            });
+            ['saveIcon','saveIcon2'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
+            try {
+                const res = await fetch(`/update/${REGISTRATION_ID}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    // Upload GST / PAN documents if user selected new files
+                    const gstFile = document.getElementById('gstFile');
+                    const panFile = document.getElementById('panFile');
+                    const hasGst = gstFile && gstFile.files.length > 0;
+                    const hasPan = panFile && panFile.files.length > 0;
+                    if (hasGst || hasPan) {
+                        const uploadData = new FormData();
+                        uploadData.append('gst_number', document.getElementById('gst').value.trim());
+                        uploadData.append('pan_number', document.getElementById('pan').value.trim());
+                        if (hasGst) uploadData.append('gstFile', gstFile.files[0]);
+                        if (hasPan) uploadData.append('panFile', panFile.files[0]);
+                        await fetch('/upload-documents', { method: 'POST', body: uploadData });
+                    }
+                    document.getElementById('successMsg').classList.add('show');
+                    setTimeout(() => window.location.href = `/preview/${REGISTRATION_ID}`, 1800);
+                } else {
+                    document.getElementById('errorText').textContent = result.error || 'Error saving changes';
+                    document.getElementById('errorMsg').classList.add('show');
+                    setTimeout(() => document.getElementById('errorMsg').classList.remove('show'), 5000);
+                }
+            } catch (e) {
+                document.getElementById('errorText').textContent = 'Network error. Please try again.';
+                document.getElementById('errorMsg').classList.add('show');
+            } finally {
+                ['saveBtn','saveBtn2'].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = false; });
+                ['saveLoader','saveLoader2'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+                ['saveIcon','saveIcon2'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'inline'; });
+            }
+        }
+
+
+        function toggleFileUpload(rowId, radio) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            row.style.display = radio.value === 'Yes' ? 'table-row' : 'none';
+        }
+
+        function initFileUpload(inputId, listId, dropZoneId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            const dropZone = document.getElementById(dropZoneId);
+            if (!input || !list || !dropZone) return;
+            const prefix = inputId.replace('File', '');
+            const successEl = document.getElementById(prefix + 'UploadSuccess');
+            const warningEl = document.getElementById(prefix + 'UploadWarning');
+
+            function handleFiles(files) {
+                list.innerHTML = '';
+                Array.from(files).forEach(file => {
+                    const tag = document.createElement('span');
+                    tag.className = 'file-tag';
+                    tag.innerHTML = '📄 ' + file.name + ' <span class="remove-file" title="Remove">✕</span>';
+                    tag.querySelector('.remove-file').addEventListener('click', () => {
+                        tag.remove();
+                        input.value = '';
+                        if (successEl) successEl.style.display = 'none';
+                        if (warningEl) warningEl.style.display = 'none';
+                    });
+                    list.appendChild(tag);
+                });
+                if (successEl && warningEl) {
+                    if (files && files.length > 0) {
+                        successEl.style.display = 'block';
+                        warningEl.style.display = 'none';
+                    } else {
+                        successEl.style.display = 'none';
+                        warningEl.style.display = 'none';
+                    }
+                }
+            }
+
+            input.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+            dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    input.files = e.dataTransfer.files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+
+        function validateFileUploads() {
+            // In edit mode, files already uploaded during original submission are kept.
+            // Only block save if cert is "Yes" AND no file was uploaded at all
+            // (i.e., no new file selected AND the existing flag shows nothing was ever saved).
+            // Since we can't easily check server-side file existence from JS, we allow
+            // saving without a new file — the server keeps the existing file unchanged.
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initFileUpload('gstFile', 'gstFileList', 'gstDropZone');
+            initFileUpload('panFile', 'panFileList', 'panDropZone');
+
+            // ── Same as Billing Address ───────────────────────────────────
+            const sameAsBilling = document.getElementById('sameAsBilling');
+            const shipFields = ['shipLine1','shipLine2','shipLine3','shipCity','shipState','shipPin'];
+            const billFields = ['billLine1','billLine2','billLine3','billCity','billState','billPin'];
+
+            function syncShippingFromBilling() {
+                billFields.forEach((b, i) => {
+                    const s = document.getElementById(shipFields[i]);
+                    const bEl = document.getElementById(b);
+                    s.value = bEl.value;
+                    s.readOnly = true;
+                    s.style.background = '#f0f7ff';
+                    s.style.color = '#555';
+                    s.removeAttribute('required');
+                });
+            }
+
+            function unsyncShipping() {
+                shipFields.forEach(id => {
+                    const s = document.getElementById(id);
+                    s.readOnly = false;
+                    s.style.background = '';
+                    s.style.color = '';
+                    if (['shipLine1','shipCity','shipState','shipPin'].includes(id)) {
+                        s.setAttribute('required', '');
+                    }
+                });
+            }
+
+            sameAsBilling.addEventListener('change', function () {
+                if (this.checked) {
+                    syncShippingFromBilling();
+                    billFields.forEach((b, i) => {
+                        document.getElementById(b)._syncListener = function () {
+                            if (sameAsBilling.checked) {
+                                document.getElementById(shipFields[i]).value = this.value;
+                            }
+                        };
+                        document.getElementById(b).addEventListener('input', document.getElementById(b)._syncListener);
+                    });
+                } else {
+                    unsyncShipping();
+                    billFields.forEach(b => {
+                        const el = document.getElementById(b);
+                        if (el._syncListener) {
+                            el.removeEventListener('input', el._syncListener);
+                            delete el._syncListener;
+                        }
+                    });
+                }
+            });
+        });
+
+        // ── Copy IT Department → other departments ────────────────────────
+        function copyFromIT(prefix) {
+            const suffixes = ['Name','Desig','Email','Mobile','Landline'];
+            let anyFilled = false;
+            suffixes.forEach(s => {
+                const itVal = document.getElementById('it' + s);
+                if (itVal && itVal.value.trim()) anyFilled = true;
+            });
+            if (!anyFilled) {
+                alert('Please fill in the IT Department details first before copying.');
+                return;
+            }
+            suffixes.forEach(s => {
+                const itEl = document.getElementById('it' + s);
+                const dest = document.getElementById(prefix + s);
+                if (itEl && dest) {
+                    dest.value = itEl.value;
+                    dest.style.transition = 'background 0.3s';
+                    dest.style.background = '#d1fae5';
+                    setTimeout(() => { dest.style.background = ''; }, 1200);
+                }
+            });
+        }
+
+        // ── Industry Registration Type toggle (CIN vs LLPIN) ──
+        function toggleIndustryRegType() {
+            const regType = document.getElementById('industryRegType').value;
+            const cinInput = document.getElementById('cin');
+            const llpinInput = document.getElementById('llpin');
+            const label = document.getElementById('cinLlpinLabel');
+            const errEl = document.getElementById('cinLlpinError');
+
+            if (errEl) errEl.style.display = 'none';
+
+            if (regType === 'LLP') {
+                cinInput.style.display = 'none';
+                cinInput.required = false;
+                llpinInput.style.display = 'block';
+                llpinInput.required = true;
+                if (label) label.textContent = 'LLPIN No.*';
+            } else if (regType === 'Private Limited Company' || regType === 'Public Limited Company') {
+                cinInput.style.display = 'block';
+                cinInput.required = true;
+                llpinInput.style.display = 'none';
+                llpinInput.required = false;
+                if (label) label.textContent = 'CIN No.*';
+            } else {
+                cinInput.style.display = 'block';
+                cinInput.required = true;
+                llpinInput.style.display = 'none';
+                llpinInput.required = false;
+                if (label) label.textContent = 'CIN/LLPIN No.*';
+            }
+        }
+
+        // ── CIN/PAN/GST/LLPIN format validation ──
+        function validateLegalIdentifiers() {
+            const regType = document.getElementById('industryRegType').value;
+            const cinInput = document.getElementById('cin');
+            const llpinInput = document.getElementById('llpin');
+            const panInput = document.getElementById('pan');
+            const gstInput = document.getElementById('gst');
+            const errEl = document.getElementById('cinLlpinError');
+
+            const cinVal = cinInput.value.trim();
+            const llpinVal = llpinInput.value.trim();
+            const panVal = panInput.value.trim();
+            const gstVal = gstInput.value.trim();
+
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+
+            if (regType === 'LLP') {
+                if (llpinVal.length !== 7) {
+                    errEl.textContent = 'LLPIN must be exactly 7 characters.';
+                    errEl.style.display = 'block';
+                    llpinInput.focus();
+                    return false;
+                }
+            } else if (regType === 'Private Limited Company' || regType === 'Public Limited Company') {
+                if (cinVal.length !== 21) {
+                    errEl.textContent = 'CIN must be exactly 21 characters.';
+                    errEl.style.display = 'block';
+                    cinInput.focus();
+                    return false;
+                }
+            } else {
+                if (cinVal.length < 7 || cinVal.length > 21) {
+                    errEl.textContent = 'CIN/LLPIN must be between 7 and 21 characters.';
+                    errEl.style.display = 'block';
+                    cinInput.focus();
+                    return false;
+                }
+            }
+
+            if (panVal.length !== 10) {
+                alert('PAN number must be exactly 10 characters.');
+                panInput.focus();
+                return false;
+            }
+
+            if (gstVal.length !== 15) {
+                alert('GSTIN must be exactly 15 characters.');
+                gstInput.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleIndustryRegType();
+        });
+    </script>
+</body>
+</html>

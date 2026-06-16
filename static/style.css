@@ -1,0 +1,311 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #0d9488;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.form-header h1 {
+    color: #1a2e44;
+    font-size: 24px;
+}
+
+.form-version {
+    background: linear-gradient(135deg, #1a2e44, #0d9488);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.domain-section {
+    background: #f0f0f0;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.domain-section select {
+    padding: 8px;
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.section {
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.section-title {
+    background: linear-gradient(90deg, #1a2e44, #0d9488);
+    color: white;
+    padding: 10px 15px;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.legal-table td,
+.address-table td,
+.banking-table td,
+.contact-table td,
+.signature-section td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.legal-table tr:first-child td,
+.address-table tr:first-child td,
+.contact-table tr:first-child td {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="tel"],
+input[type="email"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+input[type="radio"] {
+    margin: 0 5px 0 15px;
+}
+
+input[type="radio"]:first-child {
+    margin-left: 0;
+}
+
+.declaration {
+    background: #f0fdfa;
+    padding: 20px;
+    margin: 20px 0;
+    font-style: italic;
+    border-left: 4px solid #0d9488;
+}
+
+.signature-section {
+    margin: 20px 0;
+}
+
+.signature-section table {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.form-actions button {
+    padding: 10px 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-actions button[type="submit"] {
+    background: linear-gradient(135deg, #1a2e44, #0d9488);
+    color: white;
+}
+
+.form-actions button[type="button"] {
+    background: #ccc;
+    color: #333;
+}
+
+.form-actions button:hover {
+    opacity: 0.9;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .legal-table td,
+    .address-table td,
+    .banking-table td,
+    .contact-table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .signature-section table {
+        width: 100%;
+    }
+}
+
+/* ── Address table: 4-column standardized layout ── */
+.address-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.address-section-header {
+    background-color: #f0f0f0 !important;
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.address-table .field-label {
+    background-color: #fafafa;
+    font-weight: 600;
+    font-size: 13px;
+    color: #444;
+    vertical-align: middle;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+/* Vertical divider between billing and shipping halves */
+.address-table td:nth-child(3) {
+    border-left: 2px solid #bbb;
+}
+
+/* Standardize label rows in other tables */
+.legal-table tr:first-child td,
+.contact-table tr:first-child td,
+.contact-table td[colspan="2"]:first-child,
+.contact-table td[colspan="2"] {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+/* Banking table – equal columns */
+.banking-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.banking-table td {
+    font-size: 13px;
+}
+
+/* Contact table – standardized 2-column layout */
+.contact-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.contact-table td {
+    width: 25%;
+}
+
+/* Vertical divider between left and right halves in contact table */
+.contact-table td:nth-child(3) {
+    border-left: 2px solid #bbb;
+}
+
+/* ── File Upload Styles ── */
+.file-upload-row {
+    display: table-row;
+    background-color: #f8fbff;
+}
+
+.file-upload-area {
+    border: 2px dashed #aac4e0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    background: #f0f7ff;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.file-upload-area:hover,
+.file-upload-area.drag-over {
+    border-color: #1a4b7a;
+    background: #e4f0fb;
+}
+
+.file-upload-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.file-upload-icon {
+    font-size: 18px;
+}
+
+.file-upload-text {
+    font-size: 13px;
+    color: #1a4b7a;
+    font-weight: 600;
+}
+
+.file-upload-hint {
+    font-size: 11px;
+    color: #888;
+}
+
+.file-list {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.file-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #1a4b7a;
+    color: white;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+}
+
+.file-tag .remove-file {
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 4px;
+    opacity: 0.8;
+}
+
+.file-tag .remove-file:hover {
+    opacity: 1;
+}

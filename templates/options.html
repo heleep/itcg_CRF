@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITCG – Registration Submitted</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: #1a2e44; --navy-mid: #1e3a52; --navy-light: #253d57;
+            --cyan: #0077b6; --cyan-glow: rgba(0,119,182,0.12);
+            --white: #ffffff; --text: #1a2e44; --text-muted: #94a3b8;
+            --border: #dde3ea; --card-bg: #ffffff;
+            --success: #059669;
+            --bg: #f0f4f8; --surface: #ffffff;
+            --text-secondary: #475569; --accent: #0077b6;
+            --accent-light: #e8f4fb;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; color: var(--text); }
+        body::before { content:''; position:fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #e8f0f8 0%, #f0f4f8 50%, #e4edf6 100%); pointer-events:none; z-index:0; }
+        .top-bar { position:relative; z-index:10; background:var(--navy); border-bottom:1px solid rgba(255,255,255,0.06); padding:7px 40px; display:flex; justify-content:flex-end; gap:28px; font-size:12px; color:rgba(255,255,255,0.6); }
+        .top-bar a { color:rgba(255,255,255,0.6); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color 0.2s; }
+        .top-bar a:hover { color:#fff; }
+        .top-bar i { color:#48b8e0; }
+        .navbar { position:relative; z-index:10; background:var(--surface); border-bottom:1px solid var(--border); padding:0 40px; display:flex; align-items:center; justify-content:space-between; height:68px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+        .nav-logo { display:flex; align-items:center; gap:14px; text-decoration:none; }
+        .nav-right { display:flex; align-items:center; gap:16px; }
+
+        .branding-bar { position:relative; z-index:5; display:flex; align-items:center; gap:12px; padding:10px 40px; background:var(--bg); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+        .branding-bar img { height:38px; width:auto; object-fit:contain; display:block; }
+        .branding-bar .brand-text { font-size:12px; color:var(--text-secondary); line-height:1.4; }
+        .branding-bar .brand-text strong { color:var(--navy); }
+
+        .page-wrap { position:relative; z-index:1; flex:1; padding:48px 40px 60px; max-width:1000px; margin:0 auto; width:100%; }
+
+        .success-banner { background:rgba(5,150,105,0.07); border:1px solid rgba(5,150,105,0.2); border-radius:12px; padding:20px 28px; margin-bottom:36px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+        .success-icon { width:50px; height:50px; background:rgba(5,150,105,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--success); font-size:22px; flex-shrink:0; }
+        .success-text h3 { font-size:18px; font-weight:700; color:#059669; margin-bottom:4px; font-family:'Montserrat',sans-serif; }
+        .success-text p { font-size:13px; color:var(--text-muted); }
+        .reg-badge { display:inline-flex; align-items:center; gap:8px; background:var(--accent-light); border:1px solid rgba(0,119,182,0.25); border-radius:6px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--accent); margin-left:auto; }
+
+        .heading { text-align:center; margin-bottom:36px; }
+        .heading h1 { font-family:'Montserrat',sans-serif; font-size:24px; font-weight:700; color:var(--navy); margin-bottom:8px; }
+        .heading p { font-size:14px; color:var(--text-secondary); }
+
+        .options-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px; }
+        .option-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:28px 24px; text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.05); transition:all 0.2s; text-decoration:none; color:var(--text); display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+        .option-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,0.1); border-color:var(--accent); }
+        .option-icon { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; }
+        .option-icon.preview { background:rgba(0,119,182,0.1); color:var(--accent); }
+        .option-icon.edit { background:rgba(245,158,11,0.1); color:#d97706; }
+        .option-icon.confirm { background:rgba(5,150,105,0.1); color:var(--success); }
+        .option-card h3 { font-family:'Montserrat',sans-serif; font-size:16px; font-weight:700; margin-bottom:8px; color:var(--navy); }
+        .option-card p { font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:18px; }
+        .option-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 22px; border:none; border-radius:8px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; color:#fff; }
+        .option-btn.preview-btn { background:var(--accent); }
+        .option-btn.preview-btn:hover { background:#005f92; }
+        .option-btn.edit-btn { background:#d97706; }
+        .option-btn.edit-btn:hover { background:#b45309; }
+        .option-btn.confirm-btn { background:var(--success); }
+        .option-btn.confirm-btn:hover { background:#047857; }
+
+        .site-footer { background: var(--navy-mid); border-top: 2px solid var(--cyan); padding: 14px 40px; text-align: center; font-size: 12px; color: #7a9ab5; margin-top: 40px; }
+        .site-footer a { color: #7a9ab5; text-decoration: none; margin: 0 10px; }
+        .site-footer a:hover { color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="tel:+912249700800"><i class="fas fa-phone-alt"></i> +91 22 4970 0800</a>
+        <a href="mailto:info@itcgindia.com"><i class="fas fa-envelope"></i> info@itcgindia.com</a>
+    </div>
+    <nav class="navbar">
+        <a href="/" class="nav-logo">
+            <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
+                 style="height:44px; width:auto; object-fit:contain; display:block;">
+        </a>
+        <div class="nav-right"></div>
+    </nav>
+
+    <!-- ITCG Branding Bar -->
+    <div class="branding-bar">
+        <div class="brand-text">
+            <strong>Delivering Technology</strong> — ITCG Solutions Private Limited |
+            Vadodara | Ahmedabad | Surat | Rajkot | Indore
+        </div>
+    </div>
+
+    <div class="page-wrap">
+        <!-- Success banner -->
+        <div class="success-banner">
+            <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="success-text">
+                <h3>OTP Verified Successfully!</h3>
+                <p>Your registration form has been submitted and verified. Choose what you'd like to do next.</p>
+            </div>
+            <div class="reg-badge">
+                <i class="fas fa-id-card"></i>
+                REGISTRATION ID: <strong>{{ data.registration_number }}</strong>
+            </div>
+        </div>
+
+        <div class="heading">
+            <h1>What would you like to do next?</h1>
+            <p>You can preview your submitted form, edit the details, or confirm and submit for final processing.</p>
+        </div>
+
+        <div class="options-grid">
+            <!-- Preview -->
+            <a href="/preview/{{ data.id }}" class="option-card">
+                <div class="option-icon preview"><i class="fas fa-eye"></i></div>
+                <h3>Preview Form</h3>
+                <p>Review all the details you have submitted in a print-ready layout before taking any further action.</p>
+                <span class="option-btn preview-btn"><i class="fas fa-eye"></i> Preview</span>
+            </a>
+
+            <!-- Edit -->
+            <a href="/edit-form/{{ data.id }}" class="option-card">
+                <div class="option-icon edit"><i class="fas fa-edit"></i></div>
+                <h3>Edit Form</h3>
+                <p>Spotted a mistake? Go back and update any field, including legal information and uploaded documents.</p>
+                <span class="option-btn edit-btn"><i class="fas fa-edit"></i> Edit Form</span>
+            </a>
+
+            <!-- Submit & Confirm -->
+            <a href="/preview/{{ data.id }}#confirmationBox" class="option-card" onclick="sessionStorage.setItem('autoScrollConfirm','1')">
+                <div class="option-icon confirm"><i class="fas fa-paper-plane"></i></div>
+                <h3>Submit &amp; Confirm</h3>
+                <p>Confirm your details. A PDF confirmation email will be sent to the declarant and accountant.</p>
+                <span class="option-btn confirm-btn"><i class="fas fa-paper-plane"></i> Submit &amp; Confirm</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ITCG Branding Footer -->
+    <div class="branding-bar" style="justify-content:center; text-align:center; border-bottom:none; border-top:1px solid var(--border); background:var(--surface);">
+        <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd.">
+        <div class="brand-text">
+            <strong>Delivering Technology</strong> — ITCG Solutions Private Limited |
+            Vadodara | Ahmedabad | Surat | Rajkot | Indore
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        &copy; 2026 ITCG Solutions Pvt. Ltd. All rights reserved.
+        <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+    </footer>
+</body>
+</html>

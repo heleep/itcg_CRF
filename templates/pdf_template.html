@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ITCG Registration - {{ data.id }}</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 40px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #1a2e2b;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 3px solid #0d9488;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .header .header-logo img {
+            height: 50px;
+            object-fit: contain;
+            display: block;
+        }
+        .header .header-text {
+            flex: 1;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            color: #1a2e44;
+        }
+        .header .version {
+            font-size: 14px;
+            font-style: italic;
+            margin-top: 5px;
+            color: #0d9488;
+        }
+        /* Registration number styling */
+        .reg-number {
+            text-align: left;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            padding: 8px 12px;
+            border: 1px solid #0d9488;
+            border-left: 5px solid #0d9488;
+            background: #ecfdf5;
+            color: #1a2e44;
+        }
+        .domain-info {
+            margin-bottom: 20px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-weight: bold;
+            background: #f0fdfa;
+            border: 1px dashed #14b8a6;
+            color: #1a2e44;
+        }
+        .section {
+            margin-bottom: 20px;
+            border: 2px solid #1a2e44;
+        }
+        .section-title {
+            background-color: #1a2e44;
+            background: -webkit-linear-gradient(left, #1a2e44, #0d9488);
+            background: linear-gradient(to right, #1a2e44, #0d9488);
+            color: #ffffff;
+            padding: 8px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid #94a3b8;
+            padding: 8px;
+            vertical-align: top;
+        }
+        .label {
+            font-weight: bold;
+            background: #f0fdfa;
+            color: #1a2e44;
+            width: 20%;
+        }
+        .value {
+            width: 30%;
+        }
+        .declaration {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 5px solid #0d9488;
+            background: #f9fafb;
+            font-style: italic;
+            font-size: 14px;
+            color: #1a2e44;
+        }
+        .signature-table {
+            width: 70%;
+            margin: 0 auto;
+            border: 2px solid #1a2e44;
+        }
+        .signature-table td {
+            padding: 10px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #475569;
+            border-top: 2px solid #0d9488;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if itcg_logo %}
+        <div class="header-logo">
+            <img src="{{ itcg_logo }}" alt="ITCG Solutions Pvt. Ltd.">
+        </div>
+        {% endif %}
+        <div class="header-text">
+            <h1>ITCG VENDOR-CUSTOMER REGISTRATION</h1>
+            <div class="version">Form V3.1 (Mar 2026)</div>
+        </div>
+    </div>
+
+    <!-- Registration Number Display -->
+    <div class="reg-number">
+        <strong>Registration Number:</strong> {{ data.registration_number }}
+    </div>
+
+    <!-- Register as Display -->
+    <div class="domain-info">
+        <strong>Register as:</strong> {{ data.domain_type }}
+    </div>
+
+    <!-- 1. Legal Information -->
+    <div class="section">
+        <div class="section-title">1. LEGAL INFORMATION</div>
+        <table>
+            <tr>
+                <td class="label">Industry Registration Type:</td>
+                <td class="value">{{ data.industry_reg_type or '—' }}</td>
+                <td class="label">Name of Vendor/Customer:</td>
+                <td class="value">{{ data.vendor_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">GST:</td>
+                <td class="value">{{ data.gst }}</td>
+                <td class="label">GST Certificate:</td>
+                <td class="value">{{ data.gst_certificate }}</td>
+            </tr>
+            <tr>
+                <td class="label">Website:</td>
+                <td class="value">{{ data.website }}</td>
+                <td class="label">PAN:</td>
+                <td class="value">{{ data.pan }}</td>
+            </tr>
+            <tr>
+                <td class="label">Industry Type:</td>
+                <td class="value">{{ data.industry_type }}</td>
+                <td class="label">PAN Card:</td>
+                <td class="value">{{ data.pan_certificate }}</td>
+            </tr>
+            <tr>
+                <td class="label">Contact No.:</td>
+                <td class="value">{{ data.contact_no or '—' }}</td>
+                <td class="label">TAN No.:</td>
+                <td class="value">{{ data.tan_no }}</td>
+            </tr>
+            <tr>
+                <td class="label">CIN No.:</td>
+                <td class="value">{{ data.cin_no or '—' }}</td>
+                <td class="label">LLPIN No.:</td>
+                <td class="value">{{ data.llpin_no or '—' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 2. Address -->
+    <div class="section">
+        <div class="section-title">2. ADDRESS</div>
+        <table>
+            <tr>
+                <td colspan="2" style="text-align:center; font-weight:bold; background:#e8e8e8;">BILLING ADDRESS</td>
+                <td colspan="2" style="text-align:center; font-weight:bold; background:#e8e8e8;">SHIPPING ADDRESS</td>
+            </tr>
+            <tr>
+                <td class="label">Address Type:</td>
+                <td class="value">{{ data.billing_address_type }}</td>
+                <td class="label">Address Type:</td>
+                <td class="value">{{ data.shipping_address_type }}</td>
+            </tr>
+            <tr>
+                <td class="label">Address Line 1:</td>
+                <td class="value">{{ data.billing_line1 }}</td>
+                <td class="label">Address Line 1:</td>
+                <td class="value">{{ data.shipping_line1 }}</td>
+            </tr>
+            <tr>
+                <td class="label">Address Line 2:</td>
+                <td class="value">{{ data.billing_line2 or '—' }}</td>
+                <td class="label">Address Line 2:</td>
+                <td class="value">{{ data.shipping_line2 or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Address Line 3:</td>
+                <td class="value">{{ data.billing_line3 or '—' }}</td>
+                <td class="label">Address Line 3:</td>
+                <td class="value">{{ data.shipping_line3 or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">City/Town/Village:</td>
+                <td class="value">{{ data.billing_city }}</td>
+                <td class="label">City/Town/Village:</td>
+                <td class="value">{{ data.shipping_city }}</td>
+            </tr>
+            <tr>
+                <td class="label">State/U.T Code:</td>
+                <td class="value">{{ data.billing_state }}</td>
+                <td class="label">State/U.T Code:</td>
+                <td class="value">{{ data.shipping_state }}</td>
+            </tr>
+            <tr>
+                <td class="label">Pin/Post Code:</td>
+                <td class="value">{{ data.billing_pin }}</td>
+                <td class="label">Pin/Post Code:</td>
+                <td class="value">{{ data.shipping_pin }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 3. Banking Information -->
+    <div class="section">
+        <div class="section-title">3. BANKING INFORMATION</div>
+        <table>
+            <tr>
+                <td class="label">Name of Bank:</td>
+                <td class="value">{{ data.bank_name }}</td>
+                <td class="label">Branch Name:</td>
+                <td class="value">{{ data.branch_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Bank Account No:</td>
+                <td class="value">{{ data.account_no }}</td>
+                <td class="label">Bank Account Type:</td>
+                <td class="value">{{ data.account_type }}</td>
+            </tr>
+            <tr>
+                <td class="label">IFSC:</td>
+                <td class="value">{{ data.ifsc }}</td>
+                <td class="label">MICR Code:</td>
+                <td class="value">{{ data.micr }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 4. Contact Details -->
+    <div class="section">
+        <div class="section-title">4. CONTACT DETAILS</div>
+        <table>
+            <tr>
+                <td colspan="2" style="font-weight:bold; text-align:center; background:#e8e8e8;">IT DEPARTMENT</td>
+                <td colspan="2" style="font-weight:bold; text-align:center; background:#e8e8e8;">PURCHASE DEPARTMENT</td>
+            </tr>
+            <tr>
+                <td class="label">Contact Name:</td>
+                <td class="value">{{ data.it_contact_name or '—' }}</td>
+                <td class="label">Contact Name:</td>
+                <td class="value">{{ data.purchase_contact_name or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Designation:</td>
+                <td class="value">{{ data.it_designation or '—' }}</td>
+                <td class="label">Designation:</td>
+                <td class="value">{{ data.purchase_designation or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Email Address:</td>
+                <td class="value">{{ data.it_email or '—' }}</td>
+                <td class="label">Email Address:</td>
+                <td class="value">{{ data.purchase_email or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Mobile no.:</td>
+                <td class="value">{{ data.it_mobile or '—' }}</td>
+                <td class="label">Mobile no.:</td>
+                <td class="value">{{ data.purchase_mobile or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Landline/Fax no.:</td>
+                <td class="value">{{ data.it_landline or '—' }}</td>
+                <td class="label">Landline/Fax no.:</td>
+                <td class="value">{{ data.purchase_landline or '—' }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="font-weight:bold; text-align:center; background:#e8e8e8;">ACCOUNTS DEPARTMENT</td>
+                <td colspan="2" style="font-weight:bold; text-align:center; background:#e8e8e8;">FINANCE DEPARTMENT</td>
+            </tr>
+            <tr>
+                <td class="label">Contact Name:</td>
+                <td class="value">{{ data.accounts_contact_name or '—' }}</td>
+                <td class="label">Contact Name:</td>
+                <td class="value">{{ data.finance_contact_name or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Designation:</td>
+                <td class="value">{{ data.accounts_designation or '—' }}</td>
+                <td class="label">Designation:</td>
+                <td class="value">{{ data.finance_designation or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Email Address:</td>
+                <td class="value">{{ data.accounts_email or '—' }}</td>
+                <td class="label">Email Address:</td>
+                <td class="value">{{ data.finance_email or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Mobile no.:</td>
+                <td class="value">{{ data.accounts_mobile or '—' }}</td>
+                <td class="label">Mobile no.:</td>
+                <td class="value">{{ data.finance_mobile or '—' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Landline/Fax:</td>
+                <td class="value">{{ data.accounts_landline or '—' }}</td>
+                <td class="label">Landline/Fax no.:</td>
+                <td class="value">{{ data.finance_landline or '—' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Declaration -->
+    <div class="declaration">
+        I/We Certify that the information furnished above is correct and complete to the best of my/our Knowledge and belief.
+    </div>
+
+    <!-- Signature Section -->
+    <table class="signature-table">
+        <tr>
+            <td colspan="2" style="font-weight:bold; text-align:center; background:#e8e8e8;">Declaration & Information Provided By:</td>
+        </tr>
+        <tr>
+            <td class="label" style="width: 30%;">Name:</td>
+            <td class="value">{{ data.declarant_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Designation:</td>
+            <td class="value">{{ data.declarant_designation }}</td>
+        </tr>
+        <tr>
+            <td class="label">Date:</td>
+            <td class="value">{{ data.declarant_date }}</td>
+        </tr>
+        <tr>
+            <td class="label">Email ID:</td>
+            <td class="value">{{ data.declarant_email }}</td>
+        </tr>
+        <tr>
+            <td class="label">Signature:</td>
+            <td class="value">{{ data.declarant_signature }}</td>
+        </tr>
+    </table>
+
+    <!-- Footer with registration number -->
+    <div class="footer">
+        Registration Number: {{ data.registration_number }} | ITCG Form V3.1 (Mar 2026) - Computer Generated Document<br>
+        Delivering Technology — ITCG Solutions Private Limited | Vadodara | Ahmedabad | Surat | Rajkot | Indore
+    </div>
+</body>
+</html>
