@@ -1038,7 +1038,9 @@ if (type === 'Vendor') {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
-                const result = await response.json();
+                const text = await response.text();
+                let result;
+                try { result = JSON.parse(text); } catch(e) { throw new Error("Server error (status " + response.status + "): " + text.substring(0, 200)); }
 
                 if (result.success && result.requireOtp) {
                     pendingRegistrationId = result.id;

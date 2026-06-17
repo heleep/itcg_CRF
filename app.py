@@ -447,7 +447,7 @@ def submit_form():
 
         otp = generate_otp()
         if save_otp(decl_email, otp):
-            if send_otp_email(decl_email, otp, registration_id=registration_id):
+            if send_otp_email(decl_email, otp, registration_id=None):
                 session['pending_registration_id'] = registration_id
                 session['pending_email'] = decl_email
                 return jsonify({
@@ -729,8 +729,6 @@ def confirm_registration(registration_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-with app.app_context():
-    create_tables()
-
 if __name__ == '__main__':
+    create_tables()
     app.run(debug=True, port=5000)
