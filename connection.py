@@ -11,15 +11,12 @@ load_dotenv()  # loads all values from .env into environment
 # ── Flask ─────────────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# ── PostgreSQL ────────────────────────────────────────────────────────────────
-DATABASE_URL = os.getenv('DATABASE_URL')  # Render provides this automatically
-
+# ── MySQL ─────────────────────────────────────────────────────────────────────
 DB_CONFIG = {
     'host':     os.getenv('DB_HOST'),
     'user':     os.getenv('DB_USER'),
     'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_NAME'),
-    'port':     int(os.getenv('DB_PORT', 5432))
+    'database': os.getenv('DB_NAME')
 }
 
 # ── Email (SMTP / Flask-Mail) ─────────────────────────────────────────────────

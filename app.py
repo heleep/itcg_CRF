@@ -447,7 +447,7 @@ def submit_form():
 
         otp = generate_otp()
         if save_otp(decl_email, otp):
-            if send_otp_email(decl_email, otp, registration_id=None):
+            if send_otp_email(decl_email, otp, registration_id=registration_id):
                 session['pending_registration_id'] = registration_id
                 session['pending_email'] = decl_email
                 return jsonify({
