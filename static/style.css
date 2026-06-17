@@ -309,3 +309,144 @@ input[type="radio"]:first-child {
 .file-tag .remove-file:hover {
     opacity: 1;
 }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE RESPONSIVE FIXES
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+    /* Container padding */
+    body { font-size: 14px; }
+    .container { padding: 8px !important; }
+    .form-container { padding: 10px !important; border-radius: 8px; }
+
+    /* Header */
+    .form-header { padding: 12px 10px !important; }
+    .form-header h1 { font-size: 16px !important; }
+    .form-header p  { font-size: 12px !important; }
+    .header-logo   { height: 40px !important; }
+
+    /* Section headers */
+    .section-header {
+        font-size: 14px !important;
+        padding: 10px 12px !important;
+    }
+
+    /* All tables → stack as blocks */
+    table, thead, tbody, th, td, tr {
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Hide empty label rows that become blank blocks */
+    tr:empty { display: none !important; }
+
+    /* Labels */
+    td.field-label,
+    td[style*="font-weight"],
+    .legal-table td:first-child,
+    .banking-table td:first-child,
+    .contact-table td:first-child,
+    .address-table td:first-child {
+        background: #f5f7fa !important;
+        font-weight: 600 !important;
+        padding: 8px 12px 4px !important;
+        border-bottom: none !important;
+        color: #1a4b7a;
+        font-size: 13px;
+    }
+
+    /* Inputs inside table cells */
+    td input[type="text"],
+    td input[type="email"],
+    td input[type="tel"],
+    td input[type="date"],
+    td select,
+    td textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 10px 12px !important;
+        font-size: 14px !important;
+        border: 1px solid #ccd6e0 !important;
+        border-radius: 6px !important;
+        margin: 2px 0 8px 0 !important;
+    }
+
+    /* Radio buttons row */
+    td .radio-group,
+    td .options-row {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    /* Billing/Shipping — show stacked */
+    .address-table td:nth-child(3) {
+        border-left: none !important;
+        border-top: 2px solid #1a4b7a !important;
+        margin-top: 10px !important;
+    }
+
+    /* Submit button row */
+    .form-actions,
+    .button-row {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .btn, button[type="submit"],
+    .submit-btn, .reset-btn {
+        width: 100% !important;
+        padding: 14px !important;
+        font-size: 15px !important;
+        border-radius: 8px !important;
+    }
+
+    /* OTP modal */
+    .otp-modal-content,
+    #otpModal > div {
+        width: 92vw !important;
+        padding: 20px 16px !important;
+        border-radius: 12px !important;
+    }
+
+    #otpInput {
+        font-size: 24px !important;
+        letter-spacing: 10px !important;
+        padding: 12px !important;
+        width: 100% !important;
+    }
+
+    /* File upload */
+    .file-upload-label {
+        padding: 10px !important;
+        font-size: 13px !important;
+    }
+
+    /* Section spacing */
+    .form-section { margin-bottom: 16px !important; }
+
+    /* Progress steps */
+    .step-indicator {
+        font-size: 11px !important;
+        gap: 4px !important;
+    }
+
+    /* Hide side-by-side divider */
+    .address-table td:nth-child(odd) { border-right: none !important; }
+}
+
+@media (max-width: 480px) {
+    .form-header h1 { font-size: 14px !important; }
+    body { font-size: 13px; }
+
+    td input[type="text"],
+    td input[type="email"],
+    td input[type="tel"],
+    td select {
+        font-size: 13px !important;
+        padding: 9px 10px !important;
+    }
+}

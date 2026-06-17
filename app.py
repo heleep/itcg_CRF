@@ -8,6 +8,7 @@ import tempfile
 import random
 import string
 import base64
+import threading
 from flask_mail import Mail, Message
 
 # ── Import all credentials from connection.py ─────────────────────────────────
@@ -35,7 +36,17 @@ app.config['MAIL_DEFAULT_SENDER'] = MAIL_DEFAULT_SENDER
 mail = Mail(app)
 
 # ── pdfkit (path comes from connection.py) ────────────────────────────────────
-PDFKIT_CONFIG = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+def get_pdfkit_config():
+    try:
+        return pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
+    except Exception:
+        try:
+            return pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
+        except Exception as e:
+            print(f"wkhtmltopdf not found: {e}")
+            return None
+
+PDFKIT_CONFIG = get_pdfkit_config()
 
 # ── ITCG Logo (base64, embedded into generated PDFs) ──────────────────────────
 _ITCG_LOGO_B64 = None
@@ -447,21 +458,22 @@ def submit_form():
 
         otp = generate_otp()
         if save_otp(decl_email, otp):
-            if send_otp_email(decl_email, otp, registration_id=None):
-                session['pending_registration_id'] = registration_id
-                session['pending_email'] = decl_email
-                return jsonify({
-                    'success': True,
-                    'message': 'OTP sent to declarant email',
-                    'id': registration_id,
-                    'registrationNumber': data.get('registrationNumber'),
-                    'requireOtp': True
-                })
-            else:
-                return jsonify({
-                    'success': False,
-                    'error': 'Form saved but failed to send OTP. Check your email configuration.'
-                }), 500
+            # Send email in background thread to avoid worker timeout
+            threading.Thread(
+                target=send_otp_email,
+                args=(decl_email, otp),
+                kwargs={'registration_id': None},
+                daemon=True
+            ).start()
+            session['pending_registration_id'] = registration_id
+            session['pending_email'] = decl_email
+            return jsonify({
+                'success': True,
+                'message': 'OTP sent to declarant email',
+                'id': registration_id,
+                'registrationNumber': data.get('registrationNumber'),
+                'requireOtp': True
+            })
 
         return jsonify({'success': False, 'error': 'Failed to generate OTP'}), 500
 
