@@ -458,15 +458,21 @@ def submit_form():
 
         otp = generate_otp()
         if save_otp(decl_email, otp):
-            # Send email in background thread to avoid worker timeout
-            threading.Thread(
-                target=send_otp_email,
-                args=(decl_email, otp),
-                kwargs={'registration_id': None},
-                daemon=True
-            ).start()
+            email_sent = send_otp_email(
+                decl_email,
+                otp,
+                registration_id=registration_id
+            )
+
+            if not email_sent:
+                return jsonify({
+                    'success': False,
+                    'error': 'Unable to send OTP email.'
+                }), 500
+
             session['pending_registration_id'] = registration_id
             session['pending_email'] = decl_email
+
             return jsonify({
                 'success': True,
                 'message': 'OTP sent to declarant email',
@@ -475,10 +481,17 @@ def submit_form():
                 'requireOtp': True
             })
 
-        return jsonify({'success': False, 'error': 'Failed to generate OTP'}), 500
+        return jsonify({
+            'success': False,
+            'error': 'Failed to generate OTP'
+        }), 500
 
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+
+        return jsonify({
+           'success': False,
+           'error': str(e)
+        }), 500
 
 
 # ── STEP 2: Verify OTP ────────────────────────────────────────────────────────
