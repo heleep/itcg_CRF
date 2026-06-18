@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-#  connection.py  –  Reads all credentials from .env file
+#  connection.py  –  Reads all credentials from .env file (or Render env vars)
 #  Keep .env OUT of version control (add to .gitignore)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -11,13 +11,23 @@ load_dotenv()  # loads all values from .env into environment
 # ── Flask ─────────────────────────────────────────────────────────────────────
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# ── MySQL ─────────────────────────────────────────────────────────────────────
-DB_CONFIG = {
-    'host':     os.getenv('DB_HOST'),
-    'user':     os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'database': os.getenv('DB_NAME')
-}
+# ── PostgreSQL ────────────────────────────────────────────────────────────────
+# FIX: psycopg2 requires 'dbname' not 'database'
+# Supports both DATABASE_URL (Render managed DB) and individual vars
+_DATABASE_URL = os.getenv('DATABASE_URL')
+
+if _DATABASE_URL:
+    # Render provides a full postgres:// URL — psycopg2 accepts it directly
+    # but 'postgres://' scheme must be replaced with 'postgresql://'
+    DB_CONFIG = {'dsn': _DATABASE_URL.replace('postgres://', 'postgresql://', 1)}
+else:
+    DB_CONFIG = {
+        'host':     os.getenv('DB_HOST'),
+        'user':     os.getenv('DB_USER'),
+        'password': os.getenv('DB_PASSWORD'),
+        'dbname':   os.getenv('DB_NAME'),   # FIX: was 'database', psycopg2 needs 'dbname'
+        'port':     os.getenv('DB_PORT', '5432'),
+    }
 
 # ── Email (SMTP / Flask-Mail) ─────────────────────────────────────────────────
 MAIL_SERVER         = os.getenv('MAIL_SERVER')
@@ -31,7 +41,8 @@ MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 ACCOUNTANT_EMAIL = os.getenv('ACCOUNTANT_EMAIL')
 
 # ── wkhtmltopdf ───────────────────────────────────────────────────────────────
-WKHTMLTOPDF_PATH = os.getenv('WKHTMLTOPDF_PATH')
+# FIX: Default to Linux path for Render; override via env var for local Windows dev
+WKHTMLTOPDF_PATH = os.getenv('WKHTMLTOPDF_PATH', '/usr/bin/wkhtmltopdf')
 
 PDF_OPTIONS = {
     'page-size':      'A4',

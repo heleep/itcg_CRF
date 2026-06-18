@@ -37,14 +37,24 @@ mail = Mail(app)
 
 # ── pdfkit (path comes from connection.py) ────────────────────────────────────
 def get_pdfkit_config():
+    # FIX: Try the configured path first, then common Linux locations
+    paths_to_try = [
+        WKHTMLTOPDF_PATH,
+        '/usr/bin/wkhtmltopdf',
+        '/usr/local/bin/wkhtmltopdf',
+    ]
+    for path in paths_to_try:
+        if path and os.path.isfile(path):
+            try:
+                return pdfkit.configuration(wkhtmltopdf=path)
+            except Exception:
+                continue
+    # Last-resort auto-detect
     try:
-        return pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
-    except Exception:
-        try:
-            return pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')
-        except Exception as e:
-            print(f"wkhtmltopdf not found: {e}")
-            return None
+        return pdfkit.configuration()
+    except Exception as e:
+        print(f"wkhtmltopdf not found: {e}")
+        return None
 
 PDFKIT_CONFIG = get_pdfkit_config()
 
@@ -66,8 +76,12 @@ def get_itcg_logo_b64():
 
 
 def get_db_connection():
+    # FIX: Support both DSN (DATABASE_URL) and keyword-argument styles
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        if 'dsn' in DB_CONFIG:
+            conn = psycopg2.connect(DB_CONFIG['dsn'])
+        else:
+            conn = psycopg2.connect(**DB_CONFIG)
         return conn
     except Exception as e:
         print(f"Error connecting to PostgreSQL: {e}")
@@ -487,7 +501,6 @@ def submit_form():
         }), 500
 
     except Exception as e:
-
         return jsonify({
            'success': False,
            'error': str(e)
