@@ -2,556 +2,478 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>ITCG – Registration Preview</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --navy: #1a2e44; --navy-mid: #1e3a52; --navy-light: #253d57;
-            --cyan: #0077b6; --cyan-glow: rgba(0,119,182,0.12);
-            --white: #ffffff; --text: #1a2e44; --text-muted: #94a3b8;
-            --border: #dde3ea; --card-bg: #ffffff;
-            --success: #059669;
-            --bg: #f0f4f8; --surface: #ffffff;
-            --text-secondary: #475569; --accent: #0077b6;
-            --accent-light: #e8f4fb;
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; color: var(--text); }
-        body::before { content:''; position:fixed; top:0; left:0; width:100%; height:100%; background: linear-gradient(135deg, #e8f0f8 0%, #f0f4f8 50%, #e4edf6 100%); pointer-events:none; z-index:0; }
-        .top-bar { position:relative; z-index:10; background:var(--navy); border-bottom:1px solid rgba(255,255,255,0.06); padding:7px 40px; display:flex; justify-content:flex-end; gap:28px; font-size:12px; color:rgba(255,255,255,0.6); }
-        .top-bar a { color:rgba(255,255,255,0.6); text-decoration:none; display:flex; align-items:center; gap:6px; transition:color 0.2s; }
-        .top-bar a:hover { color:#fff; }
-        .top-bar i { color:#48b8e0; }
-        .navbar { position:relative; z-index:10; background:var(--surface); border-bottom:1px solid var(--border); padding:0 40px; display:flex; align-items:center; justify-content:space-between; height:68px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-        .nav-logo { display:flex; align-items:center; gap:14px; text-decoration:none; }
-        .logo-icon { width:44px; height:44px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff; font-weight:800; font-family:'Montserrat',sans-serif; }
-        .logo-text .brand { font-family:'Montserrat',sans-serif; font-size:18px; font-weight:700; color:var(--navy); }
-        .logo-text .sub { font-size:10px; color:var(--accent); letter-spacing:2px; text-transform:uppercase; font-weight:500; }
-        .nav-right { display:flex; align-items:center; gap:16px; }
-        .nav-user { font-size:13px; color:var(--text-secondary); display:flex; align-items:center; gap:8px; }
-        .nav-user i { color:var(--accent); }
-        .btn-logout { background:rgba(220,38,38,0.08); color:#dc2626; border:1px solid rgba(220,38,38,0.2); padding:7px 14px; border-radius:6px; font-size:12px; cursor:pointer; font-family:'Inter',sans-serif; font-weight:500; transition:all 0.2s; }
-        .btn-logout:hover { background:rgba(220,38,38,0.14); }
+        /* Preview-page-specific overrides */
+        .preview-card { background:#fff; border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-lg); }
 
-        /* Page content */
-        .page-wrap { position:relative; z-index:1; flex:1; padding:32px 40px 60px; max-width:1100px; margin:0 auto; width:100%; }
+        .pdf-topbar { background:linear-gradient(135deg,#1a2e44,#1e3a52); padding:8px 20px; display:flex; justify-content:space-between; align-items:center; }
+        .pdf-topbar span { font-size:11px; color:rgba(255,255,255,0.55); }
 
-        /* Success banner */
-        .success-banner { background:rgba(5,150,105,0.07); border:1px solid rgba(5,150,105,0.2); border-radius:12px; padding:16px 24px; margin-bottom:28px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-        .success-banner-left { display:flex; align-items:center; gap:14px; }
-        .success-icon { width:44px; height:44px; background:rgba(5,150,105,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--success); font-size:18px; flex-shrink:0; }
-        .success-text h3 { font-size:16px; font-weight:600; color:#059669; margin-bottom:2px; }
-        .success-text p { font-size:13px; color:var(--text-muted); }
-        .reg-badge { display:inline-flex; align-items:center; gap:8px; background:var(--accent-light); border:1px solid rgba(0,119,182,0.25); border-radius:6px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--accent); }
-        .reg-badge i { font-size:11px; }
+        .pdf-doc-header { background:linear-gradient(135deg,#1a2e44,#1e3a52); border-bottom:3px solid var(--teal); padding:22px 24px 18px; text-align:center; }
+        .pdf-doc-header h1 { font-family:var(--font-brand); font-size:22px; font-weight:700; color:#fff; letter-spacing:0.5px; margin-bottom:4px; }
+        .pdf-doc-header p { font-size:13px; color:#48b8e0; font-weight:500; }
 
-        /* Action bar */
-        .action-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
-        .action-bar h2 { font-family:'Montserrat',sans-serif; font-size:20px; font-weight:700; color:var(--navy); }
-        .action-bar p { font-size:13px; color:var(--text-muted); margin-top:2px; }
-        .action-btns { display:flex; gap:10px; flex-wrap:wrap; }
-        .btn { display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border:none; border-radius:8px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; }
-        .btn:disabled { opacity:0.5; cursor:not-allowed; }
-        .btn-primary { background:var(--accent); color:#fff; }
-        .btn-primary:not(:disabled):hover { background:#005f92; box-shadow:0 8px 24px rgba(0,119,182,0.28); transform:translateY(-1px); }
-        .btn-outline { background:transparent; color:var(--accent); border:1px solid var(--border); }
-        .btn-outline:hover { background:var(--accent-light); }
-        .btn-gray { background:rgba(0,0,0,0.04); color:var(--text-secondary); border:1px solid var(--border); }
-        .btn-gray:hover { background:rgba(0,0,0,0.08); }
+        .pdf-body { padding:20px; background:#f8f9fa; }
 
-        /* Preview card (the actual form preview, styled like the PDF in the screenshot) */
-        .preview-card { background:var(--white); border-radius:12px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.1); }
-
-        /* PDF-like header matching the screenshot exactly */
-        .pdf-topbar { background:linear-gradient(135deg, #1a2e44 0%, #1e3a52 100%); padding:10px 24px; display:flex; justify-content:space-between; align-items:center; }
-        .pdf-topbar span { font-size:11px; color:rgba(255,255,255,0.6); font-family:'Inter',sans-serif; }
-        .pdf-header { background:linear-gradient(135deg, #1a2e44 0%, #1e3a52 100%); border-bottom:3px solid var(--accent); padding:20px 24px 18px; text-align:center; }
-        .pdf-header h1 { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:700; color:var(--white); letter-spacing:0.5px; margin-bottom:4px; }
-        .pdf-header p { font-size:13px; color:#48b8e0; font-weight:500; }
-
-        /* PDF body sections */
-        .pdf-body { padding:24px; background:#f8f9fa; }
-
-        .pdf-section { background:var(--white); border:1px solid #dee2e6; border-radius:0; margin-bottom:16px; overflow:hidden; }
-        .pdf-section-header { background:linear-gradient(135deg, #1a2e44 0%, #1e3a52 100%); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; }
-        .pdf-section-header h3 { font-size:13px; font-weight:600; color:var(--white); letter-spacing:0.3px; }
+        .pdf-section { background:#fff; border:1px solid #dee2e6; border-radius:0; margin-bottom:14px; overflow:hidden; }
+        .pdf-section-header { background:linear-gradient(90deg,#1a2e44,#1e3a52); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .pdf-section-header h3 { font-size:13px; font-weight:600; color:#fff; letter-spacing:0.3px; }
         .pdf-section-header .type-badge { font-size:11px; color:#48b8e0; font-weight:500; }
+
         .pdf-grid { display:grid; grid-template-columns:1fr 1fr; }
-        .pdf-grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; }
         .pdf-cell { padding:10px 14px; border-bottom:1px solid #eee; border-right:1px solid #eee; }
         .pdf-cell:nth-child(even) { border-right:none; }
-        .pdf-cell-label { font-size:11px; color:#6c757d; margin-bottom:3px; font-weight:500; text-transform:uppercase; letter-spacing:0.4px; }
-        .pdf-cell-value { font-size:13px; color:#212529; font-weight:500; }
+        .pdf-cell-label { font-size:10px; color:#6c757d; margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .pdf-cell-value { font-size:13px; color:#212529; font-weight:500; word-break:break-word; }
         .pdf-cell-value.dash { color:#adb5bd; }
-        .pdf-cell.span-full { grid-column:1 / -1; border-right:none; }
 
-        /* Address section - 2-column header */
         .addr-header { display:grid; grid-template-columns:1fr 1fr; }
-        .addr-col-head { padding:8px 14px; background:#e8f0fe; border-right:1px solid #dee2e6; font-size:12px; font-weight:700; color:#0d1e35; text-transform:uppercase; letter-spacing:0.5px; }
+        .addr-col-head { padding:8px 14px; background:#e8f0fe; border-right:1px solid #dee2e6; font-size:11px; font-weight:700; color:#0d1e35; text-transform:uppercase; letter-spacing:0.5px; }
         .addr-col-head:last-child { border-right:none; }
         .addr-grid { display:grid; grid-template-columns:1fr 1fr; }
         .addr-cell { padding:9px 14px; border-bottom:1px solid #eee; border-right:1px solid #eee; }
         .addr-cell:nth-child(even) { border-right:none; }
-        .addr-cell-label { font-size:11px; color:#6c757d; margin-bottom:2px; font-weight:500; }
-        .addr-cell-value { font-size:13px; color:#212529; }
+        .addr-cell-label { font-size:10px; color:#6c757d; margin-bottom:2px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+        .addr-cell-value { font-size:13px; color:#212529; word-break:break-word; }
 
-        /* Bank table */
         .bank-table { width:100%; border-collapse:collapse; }
-        .bank-table th { background:#e8f0fe; font-size:11px; font-weight:700; color:#0d1e35; text-transform:uppercase; padding:8px 12px; border:1px solid #dee2e6; text-align:left; letter-spacing:0.3px; }
-        .bank-table td { font-size:13px; color:#212529; padding:9px 12px; border:1px solid #eee; }
+        .bank-table th { background:#e8f0fe; font-size:10px; font-weight:700; color:#0d1e35; text-transform:uppercase; padding:8px 12px; border:1px solid #dee2e6; text-align:left; letter-spacing:0.3px; white-space:nowrap; }
+        .bank-table td { font-size:13px; color:#212529; padding:9px 12px; border:1px solid #eee; word-break:break-word; }
 
-        /* Contact table */
-        .contact-section { margin-bottom:16px; }
-        .dept-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+        .dept-grid { display:grid; grid-template-columns:1fr 1fr; }
         .dept-block { padding:14px; border-right:1px solid #dee2e6; }
         .dept-block:last-child { border-right:none; }
-        .dept-head { font-size:11px; font-weight:700; color:#0d1e35; text-transform:uppercase; letter-spacing:0.5px; padding:8px 14px; background:#e8f0fe; margin:-14px -14px 12px; border-bottom:1px solid #dee2e6; }
-        .dept-row { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; font-size:12px; }
-        .dept-row span:first-child { color:#6c757d; flex-shrink:0; margin-right:8px; min-width:90px; }
-        .dept-row span:last-child { color:#212529; font-weight:500; text-align:right; }
+        .dept-head { font-size:10px; font-weight:700; color:#0d1e35; text-transform:uppercase; letter-spacing:0.5px; padding:8px 14px; background:#e8f0fe; margin:-14px -14px 12px; border-bottom:1px solid #dee2e6; }
+        .dept-row { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; font-size:12px; gap:8px; }
+        .dept-row span:first-child { color:#6c757d; flex-shrink:0; min-width:80px; font-weight:500; }
+        .dept-row span:last-child { color:#212529; font-weight:500; text-align:right; word-break:break-word; }
 
-        /* Declaration */
-        .pdf-declaration { margin:0 24px 16px; background:#fffde7; border-left:4px solid #ffc107; padding:12px 16px; font-size:12px; color:#666; font-style:italic; line-height:1.6; }
+        .pdf-declaration { margin:0 20px 14px; background:#f0fdfa; border-left:4px solid var(--teal); padding:12px 16px; font-size:12px; color:#0f766e; font-style:italic; line-height:1.6; }
 
-        /* Signature */
-        .sig-table { width:50%; margin:0 auto 24px; border:1px solid #dee2e6; border-collapse:collapse; }
+        .sig-table { width:55%; margin:0 auto 20px; border:1px solid #dee2e6; border-collapse:collapse; }
         .sig-table td { padding:10px 14px; border:1px solid #dee2e6; font-size:12px; }
-        .sig-table .sig-label { background:#e8f0fe; font-weight:600; color:#0d1e35; font-size:11px; text-transform:uppercase; }
+        .sig-table .sig-label { background:#e8f0fe; font-weight:700; color:#0d1e35; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; }
 
-        /* Footer */
-        .pdf-footer-bar { background:#f1f3f5; border-top:1px solid #dee2e6; padding:10px 24px; text-align:center; font-size:11px; color:#6c757d; }
+        .pdf-footer-bar { background:#f1f3f5; border-top:1px solid #dee2e6; padding:10px 20px; text-align:center; font-size:11px; color:#6c757d; }
 
-        .site-footer { position:relative; z-index:1; background:var(--surface); border-top:1px solid var(--border); padding:14px 40px; text-align:center; font-size:12px; color:var(--text-muted); }
-        .site-footer a { color:var(--text-muted); text-decoration:none; margin:0 10px; }
-        .site-footer a:hover { color:var(--accent); }
+        .confirm-box { margin-top:24px; background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow-sm); }
+        .confirm-box h3 { font-family:var(--font-brand); font-size:15px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+        .confirm-box p { font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6; }
 
-        /* Loader */
+        .agree-label { display:flex; align-items:flex-start; gap:12px; background:var(--accent-bg); border:1.5px solid rgba(0,119,182,0.25); border-radius:var(--radius-sm); padding:14px 16px; cursor:pointer; transition:background 0.2s; }
+        .agree-label input { width:18px; height:18px; margin-top:2px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; }
+        .agree-label span { font-size:13px; color:var(--navy-mid); line-height:1.6; }
+
+        .confirm-actions { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; align-items:center; }
+
+        .success-msg { display:none; margin-top:14px; background:var(--success-bg); border:1px solid rgba(5,150,105,0.3); border-radius:var(--radius-sm); padding:14px 18px; color:#065f46; font-size:13px; font-weight:500; }
+
+        /* PDF loading overlay */
         .pdf-loading { display:none; position:fixed; inset:0; background:rgba(240,244,248,0.9); z-index:1000; flex-direction:column; align-items:center; justify-content:center; gap:16px; }
         .pdf-loading.show { display:flex; }
         .pdf-spinner { width:44px; height:44px; border:3px solid rgba(0,119,182,0.2); border-top:3px solid var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
-        .pdf-loading p { color:var(--text-secondary); font-size:14px; }
+
+        /* Success banner */
+        .success-banner { background:rgba(5,150,105,0.07); border:1px solid rgba(5,150,105,0.2); border-radius:var(--radius); padding:16px 20px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+        .success-icon { width:44px; height:44px; background:rgba(5,150,105,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--success); font-size:18px; flex-shrink:0; }
+        .reg-badge { display:inline-flex; align-items:center; gap:8px; background:var(--accent-bg); border:1px solid rgba(0,119,182,0.25); border-radius:6px; padding:7px 14px; font-size:13px; font-weight:600; color:var(--accent); }
+
+        /* Responsive overrides for preview */
+        @media (max-width: 700px) {
+            .pdf-grid, .addr-grid, .addr-header, .dept-grid { grid-template-columns: 1fr; }
+            .pdf-cell { border-right:none; }
+            .pdf-cell:nth-child(even) { border-right:none; }
+            .addr-cell { border-right:none; }
+            .dept-block { border-right:none; border-bottom:1px solid #dee2e6; }
+            .dept-block:last-child { border-bottom:none; }
+            .bank-table, .bank-table thead, .bank-table tbody, .bank-table tr, .bank-table th, .bank-table td { display:block; width:100%; }
+            .bank-table th { background:#f1f5f9; }
+            .bank-table td { border-top:none; padding-left:16px; }
+            .sig-table { width:100%; }
+            .pdf-topbar { flex-direction:column; gap:2px; align-items:flex-start; }
+        }
+        @media (max-width: 480px) {
+            .pdf-body { padding:10px; }
+            .pdf-doc-header h1 { font-size:17px; }
+            .confirm-box { padding:16px 14px; }
+            .success-banner { flex-direction:column; align-items:flex-start; }
+        }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <a href="tel:+912249700800"><i class="fas fa-phone-alt"></i> +91 22 4970 0800</a>
-        <a href="mailto:info@itcgindia.com"><i class="fas fa-envelope"></i> info@itcgindia.com</a>
-    </div>
-    <nav class="navbar">
-        <a href="/" class="nav-logo">
-            <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
-                 style="height:44px; width:auto; object-fit:contain; display:block;">
-        </a>
-        <div class="nav-right"></div>
-    </nav>
 
-    <!-- ITCG Branding Bar -->
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 40px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;position:relative;z-index:5;">
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">
-            <strong style="color:var(--navy);">Delivering Technology</strong> — ITCG Solutions Private Limited |
-            Vadodara | Ahmedabad | Surat | Rajkot | Indore
+<!-- Top contact bar -->
+<div class="itcg-topbar">
+    <a href="tel:+912249700800"><i class="fas fa-phone-alt"></i> +91 22 4970 0800</a>
+    <a href="mailto:info@itcgindia.com"><i class="fas fa-envelope"></i> info@itcgindia.com</a>
+    <a href="https://www.itcgindia.com" target="_blank"><i class="fas fa-globe"></i> itcgindia.com</a>
+</div>
+
+<!-- Navbar -->
+<nav class="itcg-navbar">
+    <a class="nav-logo" href="/">
+        <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd.">
+        <div class="nav-brand">
+            <span class="brand-name">ITCG Solutions</span>
+            <span class="brand-sub">Delivering Technology</span>
         </div>
+    </a>
+    <div class="nav-right">
+        <span class="nav-badge">Registration Preview</span>
     </div>
+</nav>
 
+<!-- Subbar -->
+<div class="itcg-subbar">
+    <strong>ITCG Solutions Private Limited</strong>
+    <span class="locations">
+        <span>Vadodara</span><span class="loc-dot">·</span>
+        <span>Ahmedabad</span><span class="loc-dot">·</span>
+        <span>Surat</span><span class="loc-dot">·</span>
+        <span>Rajkot</span><span class="loc-dot">·</span>
+        <span>Indore</span>
+    </span>
+</div>
 
-    <!-- PDF generating loader -->
-    <div class="pdf-loading" id="pdfLoading">
-        <div class="pdf-spinner"></div>
-        <p>Generating your PDF document...</p>
-    </div>
+<!-- PDF loader -->
+<div class="pdf-loading" id="pdfLoading">
+    <div class="pdf-spinner"></div>
+    <p style="color:var(--muted);font-size:14px;">Generating your PDF document…</p>
+</div>
 
-    <div class="page-wrap">
-        <!-- Success banner -->
-        <div class="success-banner">
-            <div class="success-banner-left">
-                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="success-text">
-                    <h3>Form Submitted Successfully!</h3>
-                    <p>Your vendor/customer registration has been recorded. Review below before downloading.</p>
-                </div>
-            </div>
-            <div class="reg-badge">
-                <i class="fas fa-id-card"></i>
-                REGISTRATION ID: <strong>{{ data.registration_number }}</strong>
-            </div>
-        </div>
+<div class="page-wrapper">
 
-        <!-- Action bar -->
-        <div class="action-bar">
+    <!-- Success banner -->
+    <div class="success-banner">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div class="success-icon"><i class="fas fa-check-circle"></i></div>
             <div>
-                <h2>Form Preview</h2>
-                <p>Review your submitted details before downloading the PDF</p>
+                <div style="font-size:15px;font-weight:700;color:var(--success);margin-bottom:2px;">Form Submitted Successfully!</div>
+                <div style="font-size:13px;color:var(--muted);">Review your details below before downloading the PDF.</div>
             </div>
-            <div class="action-btns">
-                <a href="/registration-options/{{ data.id }}" class="btn btn-outline">
-                    <i class="fas fa-list"></i> Options
-                </a>
-                <a href="/edit-form/{{ data.id }}" class="btn btn-outline">
-                    <i class="fas fa-edit"></i> Edit Form
-                </a>
-                <button class="btn btn-primary" onclick="downloadPDF()">
-                    <i class="fas fa-download"></i> Download PDF
-                </button>
+        </div>
+        <div class="reg-badge">
+            <i class="fas fa-id-card"></i>
+            REGISTRATION ID: <strong>{{ data.registration_number }}</strong>
+        </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="page-header">
+        <div class="page-title-group">
+            <div class="page-title">Form Preview</div>
+            <div class="page-subtitle">Review all submitted details. Use Edit Form to make corrections.</div>
+        </div>
+        <div class="page-header-actions">
+            <a href="/registration-options/{{ data.id }}" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Options
+            </a>
+            <a href="/edit-form/{{ data.id }}" class="btn btn-secondary">
+                <i class="fas fa-edit"></i> Edit Form
+            </a>
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <i class="fas fa-download"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Preview document card -->
+    <div class="preview-card" id="previewCard">
+
+        <div class="pdf-topbar">
+            <span>Form Version: V4.0 (Mar 2026)</span>
+            <span>Date: {{ data.created_at.strftime('%d %b %Y') if data.created_at else '' }}</span>
+        </div>
+
+        <div class="pdf-doc-header">
+            <h1>ITCG Solutions Pvt. Ltd.</h1>
+            <p>Vendor / Customer Registration Form</p>
+        </div>
+
+        <div class="pdf-body">
+
+            <!-- Section 1: Legal Information -->
+            <div class="pdf-section">
+                <div class="pdf-section-header">
+                    <h3>1 &nbsp; Legal Information</h3>
+                    <span class="type-badge">Type: {{ data.domain_type }}</span>
+                </div>
+                <div class="pdf-grid">
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">Industry Registration Type</div>
+                        <div class="pdf-cell-value">{{ data.industry_reg_type or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">Name of Vendor / Customer</div>
+                        <div class="pdf-cell-value">{{ data.vendor_name or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">Website</div>
+                        <div class="pdf-cell-value">{{ data.website or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">Industry Type</div>
+                        <div class="pdf-cell-value">{{ data.industry_type or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">Contact Number</div>
+                        <div class="pdf-cell-value">{{ data.contact_no or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">CIN Number</div>
+                        <div class="pdf-cell-value">{{ data.cin_no or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">LLPIN Number</div>
+                        <div class="pdf-cell-value">{{ data.llpin_no or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">TAN Number</div>
+                        <div class="pdf-cell-value">{{ data.tan_no or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">GST Number</div>
+                        <div class="pdf-cell-value">{{ data.gst or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">GST Certificate Attached</div>
+                        <div class="pdf-cell-value">{{ data.gst_certificate or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">PAN Number</div>
+                        <div class="pdf-cell-value">{{ data.pan or '—' }}</div>
+                    </div>
+                    <div class="pdf-cell">
+                        <div class="pdf-cell-label">PAN Card Attached</div>
+                        <div class="pdf-cell-value">{{ data.pan_certificate or '—' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Address -->
+            <div class="pdf-section">
+                <div class="pdf-section-header"><h3>2 &nbsp; Address</h3></div>
+                <div class="addr-header">
+                    <div class="addr-col-head">Billing Address</div>
+                    <div class="addr-col-head">Shipping Address</div>
+                </div>
+                <div class="addr-grid">
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 1</div><div class="addr-cell-value">{{ data.billing_line1 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 1</div><div class="addr-cell-value">{{ data.shipping_line1 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 2</div><div class="addr-cell-value">{{ data.billing_line2 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 2</div><div class="addr-cell-value">{{ data.shipping_line2 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 3</div><div class="addr-cell-value">{{ data.billing_line3 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Address Line 3</div><div class="addr-cell-value">{{ data.shipping_line3 or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">City / Town / Village</div><div class="addr-cell-value">{{ data.billing_city or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">City / Town / Village</div><div class="addr-cell-value">{{ data.shipping_city or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">State / U.T Code</div><div class="addr-cell-value">{{ data.billing_state or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">State / U.T Code</div><div class="addr-cell-value">{{ data.shipping_state or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Pin / Post Code</div><div class="addr-cell-value">{{ data.billing_pin or '—' }}</div></div>
+                    <div class="addr-cell"><div class="addr-cell-label">Pin / Post Code</div><div class="addr-cell-value">{{ data.shipping_pin or '—' }}</div></div>
+                </div>
+            </div>
+
+            <!-- Section 3: Banking -->
+            <div class="pdf-section">
+                <div class="pdf-section-header"><h3>3 &nbsp; Banking Information</h3></div>
+                <div style="padding:14px;overflow-x:auto;">
+                    <table class="bank-table">
+                        <tr>
+                            <th>Bank Name</th><th>Branch Name</th><th>Account No.</th>
+                            <th>Account Type</th><th>IFSC</th><th>MICR Code</th>
+                        </tr>
+                        <tr>
+                            <td>{{ data.bank_name or '—' }}</td>
+                            <td>{{ data.branch_name or '—' }}</td>
+                            <td>{{ data.account_no or '—' }}</td>
+                            <td>{{ data.account_type or '—' }}</td>
+                            <td>{{ data.ifsc or '—' }}</td>
+                            <td>{{ data.micr or '—' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 4: Contact Details -->
+            <div class="pdf-section">
+                <div class="pdf-section-header"><h3>4 &nbsp; Contact Details</h3></div>
+                <div class="dept-grid">
+                    <div class="dept-block">
+                        <div class="dept-head">IT Department</div>
+                        <div class="dept-row"><span>Name</span><span>{{ data.it_contact_name or '—' }}</span></div>
+                        <div class="dept-row"><span>Designation</span><span>{{ data.it_designation or '—' }}</span></div>
+                        <div class="dept-row"><span>Email</span><span>{{ data.it_email or '—' }}</span></div>
+                        <div class="dept-row"><span>Mobile</span><span>{{ data.it_mobile or '—' }}</span></div>
+                        <div class="dept-row"><span>Landline/Fax</span><span>{{ data.it_landline or '—' }}</span></div>
+                    </div>
+                    <div class="dept-block">
+                        <div class="dept-head">Purchase Department</div>
+                        <div class="dept-row"><span>Name</span><span>{{ data.purchase_contact_name or '—' }}</span></div>
+                        <div class="dept-row"><span>Designation</span><span>{{ data.purchase_designation or '—' }}</span></div>
+                        <div class="dept-row"><span>Email</span><span>{{ data.purchase_email or '—' }}</span></div>
+                        <div class="dept-row"><span>Mobile</span><span>{{ data.purchase_mobile or '—' }}</span></div>
+                        <div class="dept-row"><span>Landline/Fax</span><span>{{ data.purchase_landline or '—' }}</span></div>
+                    </div>
+                </div>
+                <div class="dept-grid" style="border-top:1px solid #dee2e6;">
+                    <div class="dept-block">
+                        <div class="dept-head">Accounts Department</div>
+                        <div class="dept-row"><span>Name</span><span>{{ data.accounts_contact_name or '—' }}</span></div>
+                        <div class="dept-row"><span>Designation</span><span>{{ data.accounts_designation or '—' }}</span></div>
+                        <div class="dept-row"><span>Email</span><span>{{ data.accounts_email or '—' }}</span></div>
+                        <div class="dept-row"><span>Mobile</span><span>{{ data.accounts_mobile or '—' }}</span></div>
+                        <div class="dept-row"><span>Landline/Fax</span><span>{{ data.accounts_landline or '—' }}</span></div>
+                    </div>
+                    <div class="dept-block">
+                        <div class="dept-head">Finance Department</div>
+                        <div class="dept-row"><span>Name</span><span>{{ data.finance_contact_name or '—' }}</span></div>
+                        <div class="dept-row"><span>Designation</span><span>{{ data.finance_designation or '—' }}</span></div>
+                        <div class="dept-row"><span>Email</span><span>{{ data.finance_email or '—' }}</span></div>
+                        <div class="dept-row"><span>Mobile</span><span>{{ data.finance_mobile or '—' }}</span></div>
+                        <div class="dept-row"><span>Landline/Fax</span><span>{{ data.finance_landline or '—' }}</span></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Preview Document (styled like the PDF) -->
-        <div class="preview-card" id="previewCard">
-            <!-- Top bar like the screenshot -->
-            <div class="pdf-topbar">
-                <span>Form Version: V3.1 (Mar 2026)</span>
-                <span>Date: {{ data.created_at.strftime('%Y-%m-%d') if data.created_at else '' }}</span>
-            </div>
-
-            <!-- Document header -->
-            <div class="pdf-header">
-                <h1>ITCG Solutions Pvt. Ltd.</h1>
-                <p>Vendor / Customer Registration Form</p>
-            </div>
-
-            <div class="pdf-body">
-                <!-- Section 1: Legal Information -->
-                <div class="pdf-section">
-                    <div class="pdf-section-header">
-                        <h3>1 &nbsp; Legal Information</h3>
-                        <span class="type-badge">Type: {{ data.domain_type }}</span>
-                    </div>
-                    <div class="pdf-grid">
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">Industry Registration Type</div>
-                            <div class="pdf-cell-value">{{ data.industry_reg_type or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">Name of Vendor / Customer</div>
-                            <div class="pdf-cell-value">{{ data.vendor_name or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">Website</div>
-                            <div class="pdf-cell-value">{{ data.website or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">Industry Type</div>
-                            <div class="pdf-cell-value">{{ data.industry_type or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">Contact Number</div>
-                            <div class="pdf-cell-value {{ 'dash' if not data.contact_no }}">{{ data.contact_no or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">CIN Number</div>
-                            <div class="pdf-cell-value">{{ data.cin_no or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">LLPIN Number</div>
-                            <div class="pdf-cell-value">{{ data.llpin_no or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">TAN Number</div>
-                            <div class="pdf-cell-value">{{ data.tan_no or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">GST Number</div>
-                            <div class="pdf-cell-value">{{ data.gst or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">GST Certificate Attached</div>
-                            <div class="pdf-cell-value">{{ data.gst_certificate or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">PAN Number</div>
-                            <div class="pdf-cell-value">{{ data.pan or '—' }}</div>
-                        </div>
-                        <div class="pdf-cell">
-                            <div class="pdf-cell-label">PAN Card Attached</div>
-                            <div class="pdf-cell-value">{{ data.pan_certificate or '—' }}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 2: Address -->
-                <div class="pdf-section">
-                    <div class="pdf-section-header"><h3>2 &nbsp; Address</h3></div>
-                    <div class="addr-header">
-                        <div class="addr-col-head">Billing Address</div>
-                        <div class="addr-col-head">Shipping Address</div>
-                    </div>
-                    <div class="addr-grid">
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 1</div><div class="addr-cell-value">{{ data.billing_line1 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 1</div><div class="addr-cell-value">{{ data.shipping_line1 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 2</div><div class="addr-cell-value">{{ data.billing_line2 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 2</div><div class="addr-cell-value">{{ data.shipping_line2 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 3</div><div class="addr-cell-value">{{ data.billing_line3 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Address Line 3</div><div class="addr-cell-value">{{ data.shipping_line3 or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">City / Town / Village</div><div class="addr-cell-value">{{ data.billing_city or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">City / Town / Village</div><div class="addr-cell-value">{{ data.shipping_city or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">State / U.T Code</div><div class="addr-cell-value">{{ data.billing_state or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">State / U.T Code</div><div class="addr-cell-value">{{ data.shipping_state or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Pin / Post Code</div><div class="addr-cell-value">{{ data.billing_pin or '—' }}</div></div>
-                        <div class="addr-cell"><div class="addr-cell-label">Pin / Post Code</div><div class="addr-cell-value">{{ data.shipping_pin or '—' }}</div></div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Banking -->
-                <div class="pdf-section">
-                    <div class="pdf-section-header"><h3>3 &nbsp; Banking Information</h3></div>
-                    <div style="padding:14px;">
-                        <table class="bank-table">
-                            <tr>
-                                <th>Bank Name</th><th>Branch Name</th><th>Account No.</th>
-                                <th>Account Type</th><th>IFSC</th><th>MICR Code</th>
-                            </tr>
-                            <tr>
-                                <td>{{ data.bank_name or '—' }}</td>
-                                <td>{{ data.branch_name or '—' }}</td>
-                                <td>{{ data.account_no or '—' }}</td>
-                                <td>{{ data.account_type or '—' }}</td>
-                                <td>{{ data.ifsc or '—' }}</td>
-                                <td>{{ data.micr or '—' }}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Section 4: Contact Details -->
-                <div class="pdf-section">
-                    <div class="pdf-section-header"><h3>4 &nbsp; Contact Details</h3></div>
-                    <div class="dept-grid">
-                        <div class="dept-block">
-                            <div class="dept-head">IT Department</div>
-                            <div class="dept-row"><span>Name</span><span>{{ data.it_contact_name or '—' }}</span></div>
-                            <div class="dept-row"><span>Designation</span><span>{{ data.it_designation or '—' }}</span></div>
-                            <div class="dept-row"><span>Email</span><span>{{ data.it_email or '—' }}</span></div>
-                            <div class="dept-row"><span>Mobile</span><span>{{ data.it_mobile or '—' }}</span></div>
-                            <div class="dept-row"><span>Landline/Fax</span><span>{{ data.it_landline or '—' }}</span></div>
-                        </div>
-                        <div class="dept-block">
-                            <div class="dept-head">Purchase Department</div>
-                            <div class="dept-row"><span>Name</span><span>{{ data.purchase_contact_name or '—' }}</span></div>
-                            <div class="dept-row"><span>Designation</span><span>{{ data.purchase_designation or '—' }}</span></div>
-                            <div class="dept-row"><span>Email</span><span>{{ data.purchase_email or '—' }}</span></div>
-                            <div class="dept-row"><span>Mobile</span><span>{{ data.purchase_mobile or '—' }}</span></div>
-                            <div class="dept-row"><span>Landline/Fax</span><span>{{ data.purchase_landline or '—' }}</span></div>
-                        </div>
-                    </div>
-                    <div class="dept-grid" style="border-top:1px solid #dee2e6;">
-                        <div class="dept-block">
-                            <div class="dept-head">Accounts Department</div>
-                            <div class="dept-row"><span>Name</span><span>{{ data.accounts_contact_name or '—' }}</span></div>
-                            <div class="dept-row"><span>Designation</span><span>{{ data.accounts_designation or '—' }}</span></div>
-                            <div class="dept-row"><span>Email</span><span>{{ data.accounts_email or '—' }}</span></div>
-                            <div class="dept-row"><span>Mobile</span><span>{{ data.accounts_mobile or '—' }}</span></div>
-                            <div class="dept-row"><span>Landline/Fax</span><span>{{ data.accounts_landline or '—' }}</span></div>
-                        </div>
-                        <div class="dept-block">
-                            <div class="dept-head">Finance Department</div>
-                            <div class="dept-row"><span>Name</span><span>{{ data.finance_contact_name or '—' }}</span></div>
-                            <div class="dept-row"><span>Designation</span><span>{{ data.finance_designation or '—' }}</span></div>
-                            <div class="dept-row"><span>Email</span><span>{{ data.finance_email or '—' }}</span></div>
-                            <div class="dept-row"><span>Mobile</span><span>{{ data.finance_mobile or '—' }}</span></div>
-                            <div class="dept-row"><span>Landline/Fax</span><span>{{ data.finance_landline or '—' }}</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Declaration -->
-            <div class="pdf-declaration">
-                I/We certify that the information furnished above is correct and complete to the best of my/our knowledge and belief.
-            </div>
-
-            <!-- Signature -->
-            <table class="sig-table">
-                <tr>
-                    <td class="sig-label" colspan="2">Declaration & Information Provided By:</td>
-                </tr>
-                <tr>
-                    <td class="sig-label">Name</td>
-                    <td class="sig-label">Designation</td>
-                </tr>
-                <tr>
-                    <td>{{ data.declarant_name or '—' }}</td>
-                    <td>{{ data.declarant_designation or '—' }}</td>
-                </tr>
-                <tr>
-                    <td class="sig-label">Date</td>
-                    <td class="sig-label">Email ID</td>
-                </tr>
-                <tr>
-                    <td>{{ data.declarant_date or '—' }}</td>
-                    <td>{{ data.declarant_email or '—' }}</td>
-                </tr>
-                <tr>
-                    <td class="sig-label">Signature</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>{{ data.declarant_signature or '—' }}</td>
-                    <td></td>
-                </tr>
-            </table>
-
-            <div class="pdf-footer-bar">
-                ITCG Solutions Pvt. Ltd. &nbsp;|&nbsp; +91 22 4970 0800 &nbsp;|&nbsp; info@itcgindia.com &nbsp;|&nbsp; www.itcgindia.com
-            </div>
+        <!-- Declaration -->
+        <div class="pdf-declaration">
+            I/We certify that the information furnished above is correct and complete to the best of my/our knowledge and belief.
         </div>
 
-        <!-- Email Confirmation Agreement Box -->
-        <div id="confirmationBox" style="
-            margin-top:28px;
-            background:#fff;
-            border:1px solid #dde3ea;
-            border-radius:12px;
-            padding:20px 28px;
-            box-shadow:0 4px 16px rgba(0,0,0,0.06);
-        ">
-            <h3 style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:700;color:#1a2e44;margin-bottom:6px;">
-                <i class="fas fa-envelope-open-text" style="color:#0077b6;margin-right:8px;"></i>
-                Confirm Your Registration
-            </h3>
-            <p style="font-size:13px;color:#64748b;margin-bottom:16px;">
-                Please review all details above. By checking the box below, you confirm that the information is correct
-                and a confirmation copy will be sent to your registered email.
-            </p>
+        <!-- Signature -->
+        <table class="sig-table">
+            <tr><td class="sig-label" colspan="2">Declaration &amp; Information Provided By:</td></tr>
+            <tr><td class="sig-label">Name</td><td class="sig-label">Designation</td></tr>
+            <tr><td>{{ data.declarant_name or '—' }}</td><td>{{ data.declarant_designation or '—' }}</td></tr>
+            <tr><td class="sig-label">Date</td><td class="sig-label">Email ID</td></tr>
+            <tr><td>{{ data.declarant_date or '—' }}</td><td>{{ data.declarant_email or '—' }}</td></tr>
+        </table>
 
-            <!-- Agreement checkbox -->
-            <label id="agreementLabel" style="
-                display:flex; align-items:flex-start; gap:12px;
-                background:#f0f7ff; border:1.5px solid #bfdbfe;
-                border-radius:8px; padding:14px 16px; cursor:pointer;
-                transition:background 0.2s;
-            ">
-                <input type="checkbox" id="confirmAgreeCheck" onchange="toggleConfirmBtn()"
-                    style="width:18px;height:18px;margin-top:1px;accent-color:#0077b6;cursor:pointer;flex-shrink:0;">
-                <span style="font-size:13px;color:#1e3a52;line-height:1.5;">
-                    I confirm that the details provided in this registration form are correct.
-                    A confirmation email with the registration PDF and all uploaded documents (GST, PAN, MSME certificates) will be sent to the designated email addresses —
-                    <strong>heleepatel31@gmail.com</strong> and the <strong>declarant email: {{ data.declarant_email }}</strong>.
-                </span>
-            </label>
+        <div class="pdf-footer-bar">
+            ITCG Solutions Pvt. Ltd. &nbsp;|&nbsp; +91 22 4970 0800 &nbsp;|&nbsp; info@itcgindia.com &nbsp;|&nbsp; www.itcgindia.com
+        </div>
+    </div>
 
-            <!-- Action buttons row -->
-            <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;align-items:center;">
-                <a href="/edit-form/{{ data.id }}" class="btn btn-outline">
-                    <i class="fas fa-edit"></i> Edit Form
-                </a>
-                <button class="btn btn-primary" onclick="downloadPDF()">
-                    <i class="fas fa-file-pdf"></i> Download PDF
-                </button>
-                <button id="confirmBtn" class="btn" onclick="confirmRegistration()"
-                    disabled
-                    style="background:#059669;color:#fff;opacity:0.45;cursor:not-allowed;transition:all 0.25s;">
-                    <i class="fas fa-paper-plane"></i> Confirm &amp; Send to Email
-                </button>
-                <a href="/registration" class="btn btn-gray">
-                    <i class="fas fa-plus"></i> New Registration
-                </a>
-            </div>
+    <!-- Confirmation box -->
+    <div class="confirm-box" id="confirmationBox">
+        <h3><i class="fas fa-envelope-open-text" style="color:var(--accent);margin-right:8px;"></i>Confirm Your Registration</h3>
+        <p>Please review all details above. Checking the box below confirms the information is correct and sends a confirmation copy to your registered email.</p>
+
+        <label class="agree-label">
+            <input type="checkbox" id="confirmAgreeCheck" onchange="toggleConfirmBtn()">
+            <span>
+                I confirm that the details provided in this registration form are correct.
+                A confirmation email with the registration PDF and all uploaded documents (GST, PAN, MSME certificates) will be sent to
+                <strong>heleepatel31@gmail.com</strong> and the declarant email: <strong>{{ data.declarant_email }}</strong>.
+            </span>
+        </label>
+
+        <div class="confirm-actions">
+            <a href="/edit-form/{{ data.id }}" class="btn btn-secondary">
+                <i class="fas fa-edit"></i> Edit Form
+            </a>
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+            <button id="confirmBtn" class="btn" onclick="confirmRegistration()" disabled
+                style="background:var(--success);color:#fff;opacity:0.45;cursor:not-allowed;transition:all 0.25s;">
+                <i class="fas fa-paper-plane"></i> Confirm &amp; Send to Email
+            </button>
+            <a href="/registration" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> New Registration
+            </a>
         </div>
 
-        <!-- Confirmation success message (hidden initially) -->
-        <div id="confirmSuccessMsg" style="
-            display:none;
-            margin-top:16px;
-            background:rgba(5,150,105,0.08);
-            border:1px solid rgba(5,150,105,0.3);
-            border-radius:10px;
-            padding:14px 20px;
-            color:#065f46;
-            font-size:14px;
-            font-weight:500;
-        ">
-            <i class="fas fa-check-circle" style="margin-right:8px;color:#059669;"></i>
+        <div class="success-msg" id="confirmSuccessMsg">
+            <i class="fas fa-check-circle" style="margin-right:8px;color:var(--success);"></i>
             <span id="confirmSuccessText">Confirmation email sent successfully!</span>
         </div>
     </div>
 
-    <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:12px;
-         padding:14px 40px;background:var(--surface);border-top:1px solid var(--border);flex-wrap:wrap;text-align:center;">
-        <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd."
-             style="height:36px;width:auto;object-fit:contain;display:block;">
-        <div style="font-size:12px;color:var(--text-secondary);line-height:1.4;">
-            <strong style="color:var(--navy);">Delivering Technology</strong> — ITCG Solutions Private Limited |
-            Vadodara | Ahmedabad | Surat | Rajkot | Indore
+    <!-- Footer branding -->
+    <div class="itcg-branding-bar" style="justify-content:center;text-align:center;margin-top:16px;">
+        <img src="{{ url_for('static', filename='itcg-logo-teal.png') }}" alt="ITCG Solutions Pvt. Ltd.">
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">
+            <strong style="color:var(--navy);">Delivering Technology</strong> — ITCG Solutions Private Limited<br>
+            Vadodara · Ahmedabad · Surat · Rajkot · Indore
         </div>
     </div>
+</div>
 
-    <footer class="site-footer">
-        &copy; 2026 ITCG Solutions Pvt. Ltd. All rights reserved.
-        <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
-    </footer>
+<footer class="itcg-footer">
+    &copy; 2026 ITCG Solutions Pvt. Ltd. All rights reserved.
+    <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+</footer>
 
-    <script>
-        // Auto-scroll to confirmation box if navigated here from Options page
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.location.hash === '#confirmationBox' || sessionStorage.getItem('autoScrollConfirm') === '1') {
-                sessionStorage.removeItem('autoScrollConfirm');
-                const box = document.getElementById('confirmationBox');
-                if (box) {
-                    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    box.style.transition = 'box-shadow 0.4s';
-                    box.style.boxShadow = '0 0 0 3px rgba(0,119,182,0.35), 0 4px 16px rgba(0,0,0,0.06)';
-                    setTimeout(() => { box.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; }, 1800);
-                }
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash === '#confirmationBox' || sessionStorage.getItem('autoScrollConfirm') === '1') {
+            sessionStorage.removeItem('autoScrollConfirm');
+            const box = document.getElementById('confirmationBox');
+            if (box) {
+                box.scrollIntoView({behavior:'smooth', block:'center'});
+                box.style.transition = 'box-shadow 0.4s';
+                box.style.boxShadow = '0 0 0 3px rgba(0,119,182,0.35), 0 4px 16px rgba(0,0,0,0.06)';
+                setTimeout(() => { box.style.boxShadow = ''; }, 1800);
             }
-        });
-
-        function downloadPDF() {
-            document.getElementById('pdfLoading').classList.add('show');
-            window.location.href = '/generate-pdf/{{ data.id }}';
-            setTimeout(() => document.getElementById('pdfLoading').classList.remove('show'), 3000);
         }
+    });
 
-        function toggleConfirmBtn() {
-            const checked = document.getElementById('confirmAgreeCheck').checked;
-            const btn = document.getElementById('confirmBtn');
-            if (checked) {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-                btn.style.boxShadow = '0 4px 14px rgba(5,150,105,0.3)';
+    function downloadPDF() {
+        document.getElementById('pdfLoading').classList.add('show');
+        window.location.href = '/generate-pdf/{{ data.id }}';
+        setTimeout(() => document.getElementById('pdfLoading').classList.remove('show'), 3000);
+    }
+
+    function toggleConfirmBtn() {
+        const checked = document.getElementById('confirmAgreeCheck').checked;
+        const btn = document.getElementById('confirmBtn');
+        if (checked) {
+            btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+            btn.style.boxShadow = '0 4px 14px rgba(5,150,105,0.3)';
+        } else {
+            btn.disabled = true; btn.style.opacity = '0.45'; btn.style.cursor = 'not-allowed';
+            btn.style.boxShadow = 'none';
+        }
+    }
+
+    async function confirmRegistration() {
+        const btn = document.getElementById('confirmBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+        try {
+            const res = await fetch('/api/confirm-registration/{{ data.id }}', {
+                method: 'POST', headers: {'Content-Type': 'application/json'}
+            });
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('confirmSuccessMsg').style.display = 'block';
+                document.getElementById('confirmSuccessText').textContent = result.message || 'Confirmation email sent successfully!';
+                btn.innerHTML = '<i class="fas fa-check"></i> Confirmed';
+                btn.style.background = '#047857';
+                document.getElementById('confirmAgreeCheck').disabled = true;
             } else {
-                btn.disabled = true;
-                btn.style.opacity = '0.45';
-                btn.style.cursor = 'not-allowed';
-                btn.style.boxShadow = 'none';
-            }
-        }
-
-        async function confirmRegistration() {
-            const btn = document.getElementById('confirmBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-            try {
-                const res = await fetch('/api/confirm-registration/{{ data.id }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                const result = await res.json();
-
-                if (result.success) {
-                    document.getElementById('confirmSuccessMsg').style.display = 'block';
-                    document.getElementById('confirmSuccessText').textContent =
-                        result.message || 'Confirmation email with PDF sent successfully!';
-                    btn.innerHTML = '<i class="fas fa-check"></i> Confirmed';
-                    btn.style.background = '#047857';
-                    document.getElementById('confirmAgreeCheck').disabled = true;
-                } else {
-                    alert('Error: ' + (result.error || 'Failed to send confirmation.'));
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Confirm & Send to Email';
-                    btn.style.opacity = '1';
-                }
-            } catch (err) {
-                alert('Network error. Please try again.');
+                alert('Error: ' + (result.error || 'Failed to send confirmation.'));
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Confirm & Send to Email';
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Confirm &amp; Send to Email';
                 btn.style.opacity = '1';
             }
+        } catch {
+            alert('Network error. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Confirm &amp; Send to Email';
+            btn.style.opacity = '1';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
